@@ -20,19 +20,24 @@ export const metadata: Metadata = {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import SessionProvider from "@/components/providers/session-provider";
+import { Navbar } from "@/components/navbar";
+import { auth } from "@/auth";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <SessionProvider>
+        <SessionProvider session={session}>
+          <Navbar session={session} />
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </SessionProvider>

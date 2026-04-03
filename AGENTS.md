@@ -11,3 +11,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - use ai sdk with groq provider for ai related work (use its skill)
 - use generateText instead of generateObject for ai
 - add jsdoc description to functions and components
+- casl is used for rbac
+- no component should be more that 200 lines. if it is, then refactor it to smaller component, refactor logic to custom hook.

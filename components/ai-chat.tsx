@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Spinner } from '@/components/ui/spinner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -24,30 +25,30 @@ export function AiChat() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto border-none shadow-2xl bg-background/50 backdrop-blur-xl border border-white/10 overflow-hidden">
-      <CardHeader className="border-b border-white/5 bg-white/5">
-        <CardTitle className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+    <Card className="w-full max-w-2xl mx-auto border-none shadow-2xl bg-card/50 backdrop-blur-xl border border-border overflow-hidden">
+      <CardHeader className="border-b border-border bg-muted/40">
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold bg-linear-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
           Groq Intelligence
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="h-[400px] p-6">
           <AnimatePresence initial={false}>
-            {messages.length === 0 && (
+            {messages.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center text-muted-foreground mt-12 space-y-4"
+                className="text-center text-muted-foreground mt-12 flex flex-col gap-4"
               >
-                <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="size-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
                 <h3 className="text-xl font-medium text-foreground">How can I help today?</h3>
                 <p className="max-w-sm mx-auto">Ask me about TypeScript or anything else. Powered by Groq for extreme speed.</p>
               </motion.div>
-            )}
+            ) : null}
             {messages.map((m) => (
               <motion.div
                 key={m.id}
@@ -59,8 +60,8 @@ export function AiChat() {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
                     m.role === 'user'
-                      ? 'bg-blue-600 text-white selection:bg-blue-400'
-                      : 'bg-white/5 border border-white/10 text-foreground'
+                      ? 'bg-primary text-primary-foreground selection:bg-primary-foreground/20'
+                      : 'bg-muted border border-border text-foreground'
                   }`}
                 >
                   {m.parts.map((part, i) => {
@@ -75,28 +76,23 @@ export function AiChat() {
           </AnimatePresence>
         </ScrollArea>
       </CardContent>
-      <CardFooter className="p-4 border-t border-white/5 bg-white/5">
-        <form onSubmit={handleCustomSubmit} className="flex w-full items-center space-x-2">
+      <CardFooter className="p-4 border-t border-border bg-muted/20">
+        <form onSubmit={handleCustomSubmit} className="flex w-full items-center gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 bg-white/5 border-white/10 focus-visible:ring-blue-500/50"
+            className="flex-1 bg-background border-border focus-visible:ring-primary/50"
           />
           <Button 
             type="submit" 
             disabled={isLoading || !input.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200"
           >
             {isLoading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-              />
-            ) : (
-             'Send'
-            )}
+              <Spinner data-icon="inline-start" />
+            ) : null}
+            {isLoading ? 'Sending...' : 'Send'}
           </Button>
         </form>
       </CardFooter>

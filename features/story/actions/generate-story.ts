@@ -1,14 +1,58 @@
 "use server";
 
 import { generateText } from "ai";
+import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 import { defaultModel } from "@/lib/ai";
-import { generateStorySchema, type StoryOnlyResponse, questionsOnlySchema, type QuestionsOnlyResponse } from "../schemas";
+import prisma from "@/lib/prisma";
+import {
+  generateStorySchema,
+  questionsOnlySchema,
+  saveStorySchema,
+  type QuestionsOnlyResponse,
+  type SaveStoryInput,
+  type StoryOnlyResponse,
+} from "../schemas";
 import { getStorySystemPrompt, getQuestionSystemPrompt } from "../prompts/story-prompts";
-import { type EnglishLevel } from "../types";
+import { type EnglishLevel, type PersistedStory, type StoryListItem } from "../types";
+
+/**
+ * Ensures the active user is an admin before allowing protected story mutations.
+ * @returns The authenticated admin user identifier.
+ */
+async function requireAdminUserId(): Promise<string> {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  if (session.user.id) {
+    return session.user.id;
+  }
+
+  if (!session.user.email) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  return user.id;
+}
 
 /**
  * Generates a structured story based on a user prompt and level.
- * Uses AI SDK 6 with Output.object for structured JSON generation.
  * @param input The raw input containing prompt and level.
  * @returns The story title and content.
  */
@@ -82,4 +126,110 @@ export async function generateStoryQuestionsAction(storyContent: string, level: 
     console.error("Failed to generate questions:", error);
     throw new Error(error instanceof Error ? error.message : "Failed to generate questions. Please try again.");
   }
+}
+
+/**
+ * Saves a generated story and its questions as one atomic database transaction.
+ * @param input The generated story payload waiting to be persisted.
+ * @returns The newly created persisted story record.
+ */
+export async function saveGeneratedStoryAction(input: SaveStoryInput): Promise<PersistedStory> {
+  const createdById = await requireAdminUserId();
+
+  const result = saveStorySchema.safeParse(input);
+  if (!result.success) {
+    throw new Error("Invalid story payload");
+  }
+
+  const { content, level, prompt, questions, title } = result.data;
+
+  try {
+    const story = await prisma.$transaction(async (tx) =>
+      tx.story.create({
+        data: {
+          title,
+          content,
+          prompt,
+          level,
+          createdById,
+          questions: {
+            create: questions.map((question, index) => ({
+              text: question.text,
+              type: question.type,
+              options: question.options ?? [],
+              correctAnswer: question.correctAnswer ?? null,
+              order: index,
+            })),
+          },
+        },
+        include: {
+          questions: {
+            orderBy: {
+              order: "asc",
+            },
+          },
+        },
+      })
+    );
+
+    revalidatePath("/stories");
+
+    return story;
+  } catch (error) {
+    console.error("Failed to save story:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to save story. Please try again.");
+  }
+}
+
+/**
+ * Fetches the public saved story list ordered from newest to oldest.
+ * @returns A lightweight list representation for the saved stories screen.
+ */
+export async function getSavedStoriesAction(): Promise<StoryListItem[]> {
+  const stories = await prisma.story.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      level: true,
+      createdAt: true,
+      _count: {
+        select: {
+          questions: true,
+        },
+      },
+    },
+  });
+
+  return stories.map((story) => ({
+    id: story.id,
+    title: story.title,
+    content: story.content,
+    level: story.level,
+    createdAt: story.createdAt.toISOString(),
+    questionCount: story._count.questions,
+  }));
+}
+
+/**
+ * Fetches a single saved story and its ordered questions for read-only viewing.
+ * @param storyId The persisted story identifier.
+ * @returns The saved story with its questions, or null when missing.
+ */
+export async function getSavedStoryByIdAction(storyId: string): Promise<PersistedStory | null> {
+  return prisma.story.findUnique({
+    where: {
+      id: storyId,
+    },
+    include: {
+      questions: {
+        orderBy: {
+          order: "asc",
+        },
+      },
+    },
+  });
 }

@@ -1,15 +1,13 @@
-export type EnglishLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+export type EnglishLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 
-export interface Story {
-  id: string;
-  title: string;
-  content: string;
-  level: EnglishLevel;
-  questions: Question[];
-  createdAt: Date;
-}
+export type QuestionType =
+  | "COMPREHENSION"
+  | "VOCABULARY"
+  | "INFERENCE"
+  | "PERSONAL_RESPONSE"
+  | "ANALYSIS";
 
-export interface Question {
+export interface GeneratedQuestion {
   id: string;
   text: string;
   type: QuestionType;
@@ -17,7 +15,42 @@ export interface Question {
   correctAnswer?: string;
 }
 
-export type QuestionType = 'COMPREHENSION' | 'VOCABULARY' | 'INFERENCE' | 'PERSONAL_RESPONSE' | 'ANALYSIS';
+export interface PersistedQuestion {
+  id: string;
+  text: string;
+  type: QuestionType;
+  options: string[];
+  correctAnswer: string | null;
+  order: number;
+}
+
+export interface GeneratedStoryDraft {
+  prompt: string;
+  title: string;
+  content: string;
+  level: EnglishLevel;
+}
+
+export interface PersistedStory {
+  id: string;
+  title: string;
+  content: string;
+  prompt: string;
+  level: EnglishLevel;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: string;
+  questions: PersistedQuestion[];
+}
+
+export interface StoryListItem {
+  id: string;
+  title: string;
+  content: string;
+  level: EnglishLevel;
+  createdAt: string;
+  questionCount: number;
+}
 
 export interface GenerateStoryOptions {
   prompt: string;
