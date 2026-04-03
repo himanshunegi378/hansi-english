@@ -1,0 +1,91 @@
+components/providers/session-provider.tsx
+  4e3c26dc0de86487 4,6-11,13
+features/story/components/story-creator.tsx
+  7c00c8420323b918 19,34-37,40-42,50,72-75,112-122,182-185,197-199,201-207,209,211
+  c10c031f3154d9ac 6,8-12,20,55-70,105,188,200,218
+  4e3c26dc0de86487 83,87,106,124-126,129,154-156,163,170,186,191,194-196,217,219,221
+components/ai-chat.tsx
+  4e3c26dc0de86487 9,28-30,37,41,43-44,51,63-64,79-80,85,90,93-95
+app/layout.tsx
+  4e3c26dc0de86487 23-24,26,31-32,39-40
+lib/casl/ability.ts
+  4e3c26dc0de86487 4,14-17
+components/navbar.tsx
+  c10c031f3154d9ac 6
+  4e3c26dc0de86487 1-5,7-45,52-75
+  7c00c8420323b918 46-51
+package.json
+  4e3c26dc0de86487 9-10,61
+proxy.ts
+  7c00c8420323b918 33
+  4e3c26dc0de86487 3,5-15,18,21,23,37-40,45-47
+  c10c031f3154d9ac 19,22,31,41-44
+components/user-nav.tsx
+  4e3c26dc0de86487 1-28,36-60
+  c10c031f3154d9ac 29-35
+todo.md
+  4e3c26dc0de86487 1-3
+AGENTS.md
+  905011bdd39f6706 14-15
+app/page.tsx
+  4e3c26dc0de86487 8,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "23667b238ee2989a888bb1a1da57890114dc52ce",
+  "prompts": {
+    "4e3c26dc0de86487": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d53ba-86f3-76d3-a7fb-09af8ed35d75",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 252,
+      "total_deletions": 108,
+      "accepted_lines": 212,
+      "overriden_lines": 0
+    },
+    "7c00c8420323b918": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d53cf-bcc5-7a51-b773-43ffea609fdf",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 124,
+      "total_deletions": 21,
+      "accepted_lines": 50,
+      "overriden_lines": 0
+    },
+    "905011bdd39f6706": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d53de-3c8c-7492-97d9-2390946482f3",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    },
+    "c10c031f3154d9ac": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d53b7-e4e6-7771-b4e7-8d61db50787c",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 57,
+      "total_deletions": 263,
+      "accepted_lines": 42,
+      "overriden_lines": 0
+    }
+  }
+}
