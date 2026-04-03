@@ -7,3 +7,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - use shadcn ui for components (use its skill)
 - use framer motion and its skill for animations
 - use prisma for database (use its skill)
+- always write strongly typed code. using any is banned
+- use ai sdk with groq provider for ai related work (use its skill)
+- use generateText instead of generateObject for ai
+- add jsdoc description to functions and components

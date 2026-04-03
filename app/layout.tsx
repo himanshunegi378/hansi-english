@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import SessionProvider from "@/components/providers/session-provider";
 
 export default function RootLayout({
   children,
@@ -31,9 +32,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster />
+        <SessionProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </SessionProvider>
       </body>
     </html>
   );
 }
+
