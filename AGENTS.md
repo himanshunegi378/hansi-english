@@ -3,3 +3,7 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
+- use pnpm as package manager
+- use shadcn ui for components (use its skill)
+- use framer motion and its skill for animations
+- use prisma for database (use its skill)
