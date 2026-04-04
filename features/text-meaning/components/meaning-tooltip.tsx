@@ -1,12 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Loader2, Volume2, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { BookOpen, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useWordMeaning } from "../hooks/use-word-meaning";
 import type { SelectedText } from "../types";
+import { MeaningContent } from "./meaning-content";
 
 interface MeaningTooltipProps {
   onClose: () => void;
@@ -24,10 +39,11 @@ export function MeaningTooltip({
   onClose,
   selectedText,
 }: MeaningTooltipProps) {
+  const canDismissFromOpenChangeRef = useRef(false);
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== "undefined" && window.innerWidth < MOBILE_BREAKPOINT,
   );
-  const { errorMessage, isLoading, meaning } = useWordMeaning(selectedText?.text ?? null);
+  const { errorMessage, isLoading, meaning } = useWordMeaning(selectedText);
 
   useEffect(() => {
     /**
@@ -41,125 +57,112 @@ export function MeaningTooltip({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    canDismissFromOpenChangeRef.current = false;
+    const frameId = window.requestAnimationFrame(() => {
+      canDismissFromOpenChangeRef.current = true;
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [selectedText?.text]);
+
   if (!selectedText) {
     return null;
   }
 
-  const firstAudio = meaning?.phonetics.find((entry) => entry.audio)?.audio ?? null;
-
-  /**
-   * Plays the first available pronunciation audio for the current selection.
-   */
-  const playPronunciation = () => {
-    if (!firstAudio) {
-      return;
-    }
-
-    void new Audio(firstAudio).play();
+  const triggerStyle = {
+    left: selectedText.position.left,
+    top: selectedText.position.top,
   };
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        key={selectedText.text}
-        initial={isMobile ? { opacity: 0, y: 32 } : { opacity: 0, scale: 0.96, y: 8 }}
-        animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-        exit={isMobile ? { opacity: 0, y: 24 } : { opacity: 0, scale: 0.96, y: 8 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-        style={
-          isMobile
-            ? undefined
-            : {
-                left: selectedText.position.left,
-                top: selectedText.position.top - 12,
-                transform: "translate(-50%, -100%)",
-              }
+  /**
+   * Closes the overlay only after the initial mount frame has completed.
+   * @param open The next open state emitted by the overlay component.
+   */
+  const handleOpenChange = (open: boolean) => {
+    if (!open && canDismissFromOpenChangeRef.current) {
+      onClose();
+    }
+  };
+
+  return isMobile ? (
+    <Drawer open onOpenChange={handleOpenChange}>
+      <DrawerContent data-text-meaning-overlay="true">
+        <DrawerHeader className="text-left">
+          <DrawerTitle className="flex items-center gap-2">
+            <BookOpen />
+            <span className="capitalize">{selectedText.text}</span>
+          </DrawerTitle>
+          <DrawerDescription>
+            {meaning?.hindiTranslation ??
+              meaning?.phonetic ??
+              "AI-generated meanings and pronunciation"}
+          </DrawerDescription>
+        </DrawerHeader>
+        <MeaningContent
+          errorMessage={errorMessage}
+          isLoading={isLoading}
+          meaning={meaning}
+          onClose={onClose}
+        />
+        <div className="p-4 pt-0">
+          <DrawerClose render={<Button variant="outline" className="w-full" />}>
+            Close
+          </DrawerClose>
+        </div>
+      </DrawerContent>
+    </Drawer>
+  ) : (
+    <Popover open onOpenChange={handleOpenChange}>
+      <PopoverTrigger
+        render={
+          <Button
+            type="button"
+            aria-hidden
+            tabIndex={-1}
+            className="fixed size-px -translate-x-1/2 -translate-y-1/2 opacity-0"
+            style={triggerStyle}
+          />
         }
-        className={cn(
-          "fixed z-50 w-[min(24rem,calc(100vw-1.5rem))] rounded-2xl border border-border/70 bg-background/95 p-4 shadow-2xl backdrop-blur-sm",
-          isMobile && "inset-x-3 bottom-3 w-auto",
-        )}
+      />
+      <PopoverContent
+        side="top"
+        align="center"
+        sideOffset={12}
+        data-text-meaning-overlay="true"
+        className="w-[min(28rem,calc(100vw-1.5rem))] rounded-2xl p-0"
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <BookOpen className="size-4 text-primary" />
-              <p className="text-sm font-semibold capitalize">{selectedText.text}</p>
+        <PopoverHeader className="gap-2 p-4 pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-1">
+              <PopoverTitle className="flex items-center gap-2">
+                <BookOpen className="size-4 text-primary" />
+                <span className="capitalize">{selectedText.text}</span>
+              </PopoverTitle>
+              <PopoverDescription>
+                {meaning?.hindiTranslation ??
+                  meaning?.phonetic ??
+                  "AI-generated meanings and pronunciation"}
+              </PopoverDescription>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              {meaning?.phonetic ? <span>{meaning.phonetic}</span> : null}
-              {meaning?.phonetics.length ? (
-                <span>
-                  {meaning.phonetics
-                    .map((entry) => entry.text)
-                    .filter((text): text is string => Boolean(text))
-                    .slice(0, 2)
-                    .join(" • ")}
-                </span>
-              ) : null}
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            {firstAudio ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-8 shrink-0 rounded-full"
-                onClick={playPronunciation}
-                aria-label="Play pronunciation"
-              >
-                <Volume2 className="size-4" />
-              </Button>
-            ) : null}
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="size-8 shrink-0 rounded-full"
               onClick={onClose}
               aria-label="Close meaning tooltip"
             >
-              <X className="size-4" />
+              <X />
             </Button>
           </div>
-        </div>
-
-        <div className="mt-3 rounded-xl bg-muted/50 p-3 text-sm leading-6 text-foreground">
-          {isLoading ? (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" />
-              <span>Looking up the meaning…</span>
-            </div>
-          ) : errorMessage ? (
-            <p className="text-destructive">{errorMessage}</p>
-          ) : (
-            <div className="space-y-3">
-              {meaning?.meanings.slice(0, 3).map((entry, meaningIndex) => (
-                <div key={`${entry.partOfSpeech ?? "meaning"}-${meaningIndex}`} className="space-y-1.5">
-                  {entry.partOfSpeech ? (
-                    <p className="text-xs font-semibold uppercase tracking-wide text-primary/80">
-                      {entry.partOfSpeech}
-                    </p>
-                  ) : null}
-                  <ol className="space-y-1.5">
-                    {entry.definitions.slice(0, 3).map((definition, definitionIndex) => (
-                      <li key={`${definition.definition}-${definitionIndex}`} className="list-decimal ms-4">
-                        <p>{definition.definition}</p>
-                        {definition.example ? (
-                          <p className="text-xs italic text-muted-foreground">
-                            {definition.example}
-                          </p>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </AnimatePresence>
+        </PopoverHeader>
+        <MeaningContent
+          errorMessage={errorMessage}
+          isLoading={isLoading}
+          meaning={meaning}
+          onClose={onClose}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }

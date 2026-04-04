@@ -11,6 +11,9 @@ interface UseTextMeaningSelectionResult {
 }
 
 const MAX_WORDS = 3;
+const OVERLAY_SELECTOR = "[data-text-meaning-overlay='true']";
+const SENTENCE_BREAK_PATTERN = /[.!?。！？]/;
+
 /**
  * Tracks text selections inside a container and stores the selected text with viewport coordinates.
  * @returns Container bindings and the active selection state.
@@ -53,6 +56,11 @@ export function useTextMeaningSelection(): UseTextMeaningSelectionResult {
     }
 
     setSelectedText({
+      contextSentence: getContextSentence({
+        containerElement: containerRef.current,
+        range,
+        selectedText: selectedValue,
+      }),
       text: selectedValue,
       position: {
         top: rect.top,
@@ -72,6 +80,13 @@ export function useTextMeaningSelection(): UseTextMeaningSelectionResult {
      */
     const handlePointerDown = (event: MouseEvent | TouchEvent) => {
       const target = event.target;
+
+      if (
+        target instanceof HTMLElement &&
+        target.closest(OVERLAY_SELECTOR)
+      ) {
+        return;
+      }
 
       if (
         target instanceof Node &&
@@ -109,4 +124,67 @@ export function useTextMeaningSelection(): UseTextMeaningSelectionResult {
     handlePointerSelection,
     selectedText,
   };
+}
+
+interface GetContextSentenceOptions {
+  containerElement: HTMLDivElement | null;
+  range: Range;
+  selectedText: string;
+}
+
+/**
+ * Derives the sentence surrounding the current selection from the container text.
+ * @param options The current container, range, and selected text.
+ * @returns The nearest sentence containing the selection when available.
+ */
+function getContextSentence({
+  containerElement,
+  range,
+  selectedText,
+}: GetContextSentenceOptions): string | undefined {
+  if (!containerElement) {
+    return undefined;
+  }
+
+  const fullText = containerElement.textContent?.replace(/\s+/g, " ").trim();
+
+  if (!fullText) {
+    return undefined;
+  }
+
+  const preSelectionRange = range.cloneRange();
+  preSelectionRange.selectNodeContents(containerElement);
+  preSelectionRange.setEnd(range.startContainer, range.startOffset);
+
+  const startIndex = preSelectionRange.toString().replace(/\s+/g, " ").length;
+  const normalizedSelection = selectedText.replace(/\s+/g, " ").trim();
+
+  if (!normalizedSelection) {
+    return undefined;
+  }
+
+  const selectionIndex =
+    fullText.indexOf(normalizedSelection, Math.max(0, startIndex - normalizedSelection.length)) >= 0
+      ? fullText.indexOf(normalizedSelection, Math.max(0, startIndex - normalizedSelection.length))
+      : fullText.indexOf(normalizedSelection);
+
+  if (selectionIndex < 0) {
+    return undefined;
+  }
+
+  let sentenceStart = selectionIndex;
+  while (sentenceStart > 0 && !SENTENCE_BREAK_PATTERN.test(fullText[sentenceStart - 1])) {
+    sentenceStart -= 1;
+  }
+
+  let sentenceEnd = selectionIndex + normalizedSelection.length;
+  while (sentenceEnd < fullText.length && !SENTENCE_BREAK_PATTERN.test(fullText[sentenceEnd])) {
+    sentenceEnd += 1;
+  }
+
+  if (sentenceEnd < fullText.length) {
+    sentenceEnd += 1;
+  }
+
+  return fullText.slice(sentenceStart, sentenceEnd).trim() || undefined;
 }

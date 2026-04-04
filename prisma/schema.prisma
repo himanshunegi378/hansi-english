@@ -65,3 +65,15 @@ model Question {
 
   @@index([storyId, order])
 }
+
+model WordMeaningCache {
+  id               String   @id @default(cuid())
+  lookupKey        String   @unique
+  word             String
+  phonetic         String?
+  phonetics        Json
+  hindiTranslation String?
+  meanings         Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}

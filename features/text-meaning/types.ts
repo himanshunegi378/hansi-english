@@ -10,66 +10,70 @@ export interface SelectionPosition {
  * The currently selected text and its screen position.
  */
 export interface SelectedText {
+  contextSentence?: string;
   position: SelectionPosition;
   text: string;
 }
 
 /**
- * License metadata returned by the dictionary API.
+ * A single meaning entry returned by the AI meaning service.
  */
-export interface DictionaryLicense {
-  name: string;
-  url: string;
-}
-
-/**
- * A single definition item from the dictionary API.
- */
-export interface DictionaryDefinition {
+export interface MeaningDefinition {
   definition: string;
-  synonyms: string[];
-  antonyms: string[];
+  hindiDefinition?: string;
   example?: string;
 }
 
 /**
- * A meaning group from the dictionary API.
+ * A pronunciation variant for the selected word.
  */
-export interface DictionaryMeaning {
+export interface MeaningPhonetic {
+  audio?: string;
+  text: string;
+}
+
+/**
+ * A part-of-speech group returned by the AI meaning service.
+ */
+export interface MeaningGroup {
   partOfSpeech: string;
-  definitions: DictionaryDefinition[];
+  definitions: MeaningDefinition[];
   synonyms: string[];
   antonyms: string[];
 }
 
 /**
- * Pronunciation metadata returned by the dictionary API.
+ * Stable word meaning fields that can be cached across contexts.
  */
-export interface DictionaryPhonetic {
-  text?: string;
-  audio?: string;
-  sourceUrl?: string;
-  license?: DictionaryLicense;
-}
-
-/**
- * A single dictionary entry returned by the public API.
- */
-export interface DictionaryEntry {
+export interface CachedMeaningResult {
   word: string;
   phonetic?: string;
-  phonetics: DictionaryPhonetic[];
-  meanings: DictionaryMeaning[];
-  license?: DictionaryLicense;
-  sourceUrls: string[];
+  phonetics: MeaningPhonetic[];
+  hindiTranslation?: string;
+  meanings: MeaningGroup[];
 }
 
 /**
- * Full response payload returned by the public dictionary API.
+ * Context-sensitive explanation for how the selected word fits a sentence.
  */
-export type DictionaryApiResponse = DictionaryEntry[];
+export interface MeaningContextResult {
+  hindiHowItFitsInContext?: string;
+}
 
 /**
- * Tooltip-facing dictionary data for the selected word.
+ * Structured word meaning data returned to the tooltip UI.
  */
-export type MeaningResult = DictionaryEntry;
+export type MeaningResult = CachedMeaningResult & MeaningContextResult;
+
+/**
+ * The validated input for generating a word meaning.
+ */
+export interface GetWordMeaningInput {
+  contextSentence?: string;
+  word: string;
+}
+
+/**
+ * The serialized AI response contract returned by the server action.
+ */
+export type GetWordMeaningResponse = MeaningResult;
