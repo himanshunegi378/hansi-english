@@ -1,0 +1,25 @@
+package.json
+  f8fe13f9e8a9d6aa 10
+scripts/create-admin.ts
+  f8fe13f9e8a9d6aa 16-33,61,70-71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "9c36314e5d7deadb243219f7e1d3d297b43a12d7",
+  "prompts": {
+    "f8fe13f9e8a9d6aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d5952-2a8a-7ec2-8324-1435ae3e2791",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 22,
+      "total_deletions": 3,
+      "accepted_lines": 22,
+      "overriden_lines": 0
+    }
+  }
+}
