@@ -1,0 +1,45 @@
+features/story/components/question-renderer.tsx
+  73eab35ed08f52af 3-8,11-12,14,18-20,22-26,28-33,35-36,39-46,48-63,65-71
+features/story/pages/story-reader.tsx
+  73eab35ed08f52af 4-5,15-24,51-66,70-71,79
+features/story/actions/story-attempts.ts
+  73eab35ed08f52af 1-386
+prisma/schema.prisma
+  73eab35ed08f52af 29-34,44,58,73,78-113
+features/story/index.ts
+  73eab35ed08f52af 4
+features/story/types/index.ts
+  73eab35ed08f52af 10-34,69,79-81,88-91
+features/story/actions/generate-story.ts
+  73eab35ed08f52af 16,18,20,192,208-222,233-236,246-247,257-285,288-296
+features/story/hooks/use-story-quiz.ts
+  73eab35ed08f52af 1-268
+features/story/actions/story-attempt-helpers.ts
+  73eab35ed08f52af 1-49
+features/story/pages/story-list.tsx
+  73eab35ed08f52af 6,92-101
+prisma/migrations/migration_lock.toml
+  73eab35ed08f52af 1
+app/story/page.tsx
+  73eab35ed08f52af 40-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "ea8599c6d2ba8ad7a9bff45317ab5efdf6fea149",
+  "prompts": {
+    "73eab35ed08f52af": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d57a6-f3ea-7fa0-b2fb-8d340cd750ea",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 1012,
+      "total_deletions": 257,
+      "accepted_lines": 954,
+      "overriden_lines": 0
+    }
+  }
+}
