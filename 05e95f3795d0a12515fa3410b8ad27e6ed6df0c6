@@ -1,0 +1,51 @@
+features/story/components/quiz/quiz-question-panel.tsx
+  40a4e862a442865f 62,74,160
+features/story/pages/story-list.tsx
+  40a4e862a442865f 38,79-80
+features/story/pages/story-preview.tsx
+  40a4e862a442865f 22
+features/story/pages/story-reader.tsx
+  40a4e862a442865f 26,51
+features/story/components/question-renderer.tsx
+  40a4e862a442865f 39
+components/landing/landing-hero.tsx
+  40a4e862a442865f 29,34,36-41,45-48,54-55,58,62,69,74,84,92,96,101,116,121,124,131,133,136,141,145
+features/story/pages/story-list-card.tsx
+  40a4e862a442865f 66-67,69,72,76,82-83,106
+features/story/components/quiz/quiz-header.tsx
+  40a4e862a442865f 29,35-36
+app/stories/page.tsx
+  40a4e862a442865f 23-25,28,31,34,43
+features/story/pages/story-creator-form.tsx
+  40a4e862a442865f 75,79,85-86,140,177
+features/story/pages/story-creator.tsx
+  40a4e862a442865f 81,103,114
+app/story/page.tsx
+  40a4e862a442865f 36,55
+features/story/components/story-card.tsx
+  40a4e862a442865f 34-35,40,43,47,55,57,64
+features/story/components/story-page-intro.tsx
+  40a4e862a442865f 32,40,43
+features/story/components/question-renderer-with-answers.tsx
+  40a4e862a442865f 33,39,42,55-56,70,77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "05e95f3795d0a12515fa3410b8ad27e6ed6df0c6",
+  "prompts": {
+    "40a4e862a442865f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d58c6-4622-7a32-bedf-538640f31efa",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 87,
+      "total_deletions": 86,
+      "accepted_lines": 87,
+      "overriden_lines": 0
+    }
+  }
+}
