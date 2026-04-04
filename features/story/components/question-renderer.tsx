@@ -36,7 +36,7 @@ export function QuestionRenderer({
   const isLastQuestion = quiz.currentQuestionIndex === questions.length - 1;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 sm:gap-8">
       <QuizHeader
         answeredCount={quiz.answeredCount}
         completionPercent={quiz.completionPercent}

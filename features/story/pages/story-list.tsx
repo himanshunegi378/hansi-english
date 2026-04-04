@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { BookOpenText, Sparkles } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Empty,
@@ -39,7 +35,7 @@ export function StoryList({
   if (stories.length === 0) {
     return (
       <Card className="rounded-[2rem] border-border/70 bg-card/90 shadow-xl shadow-primary/5 backdrop-blur-sm">
-        <CardContent className="p-6">
+        <CardContent className="p-5 sm:p-6">
           <Empty className="rounded-[1.75rem] border-border/60 bg-background/70">
             <EmptyHeader>
               <EmptyMedia
@@ -80,8 +76,8 @@ export function StoryList({
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
       <Card className="border-none border-0 ring-0 bg-transparent shadow-none">
-        <CardContent className="flex flex-col gap-5 px-0 pb-0">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <CardContent className="flex flex-col gap-4 px-0 pb-0 sm:gap-5">
+          <div className="grid gap-3.5 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
             {stories.map((story, index) => (
               <StoryListCard key={story.id} story={story} index={index} />
             ))}

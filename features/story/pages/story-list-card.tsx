@@ -63,24 +63,24 @@ export function StoryListCard({ story, index }: StoryListCardProps) {
     >
       <Link href={`/story?storyId=${encodeURIComponent(story.id)}`} className="group block h-full">
         <Card className="flex ring-0 border border-border h-full flex-col overflow-hidden rounded-[2rem] bg-card/90 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/30 group-hover:shadow-2xl group-hover:shadow-primary/10">
-          <CardHeader className="flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-3">
+          <CardHeader className="flex flex-col gap-3 p-5 sm:gap-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex flex-col gap-2">
-                <CardTitle className="line-clamp-2 text-xl leading-snug sm:text-2xl">
+                <CardTitle className="line-clamp-2 text-lg leading-snug sm:text-2xl">
                   {story.title}
                 </CardTitle>
-                <CardDescription className="line-clamp-3 text-sm/7">
+                <CardDescription className="line-clamp-3 text-sm/6 sm:text-sm/7">
                   {getPreview(story.content)}
                 </CardDescription>
               </div>
-              <Badge variant="outline" className="rounded-full px-3 py-1.5">
+              <Badge variant="outline" className="w-fit rounded-full px-3 py-1.5">
                 {levelLabels[story.level]}
               </Badge>
             </div>
           </CardHeader>
 
-          <CardContent className="mt-auto flex flex-col gap-4">
-            <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+          <CardContent className="mt-auto flex flex-col gap-3 px-5 pb-5 sm:gap-4 sm:px-6 sm:pb-6">
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground sm:text-sm">
               <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-3 py-1.5">
                 <CalendarDays />
                 <span>{formatCreatedAt(story.createdAt)}</span>
@@ -103,7 +103,7 @@ export function StoryListCard({ story, index }: StoryListCardProps) {
               ) : null}
             </div>
 
-            <div className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.22em] text-muted-foreground transition-colors group-hover:text-foreground">
+            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground transition-colors group-hover:text-foreground sm:text-sm sm:tracking-[0.22em]">
               <span>Open reading</span>
               <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
             </div>

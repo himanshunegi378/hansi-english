@@ -23,7 +23,7 @@ export function StoryReader({
   const earnedPoints = story.viewerProgress?.earnedPoints ?? 0;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6 pb-24 sm:p-8">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 pb-20 pt-2 sm:gap-8 sm:p-8 sm:pb-24">
       <StoryPageIntro
         eyebrow="Reading Workspace"
         title="Read first, then check understanding."
@@ -48,7 +48,7 @@ export function StoryReader({
         }
       />
 
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-8 sm:gap-10">
         <StoryCard
           title={story.title}
           prompt={story.prompt}

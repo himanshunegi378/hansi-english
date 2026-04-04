@@ -29,7 +29,7 @@ export function StoryPageIntro({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: "easeOut" }}
-      className="flex flex-col gap-5 rounded-[2rem] border border-border/70 bg-background/80 p-6 shadow-sm backdrop-blur-sm sm:p-8"
+      className="flex flex-col gap-4 rounded-[2rem] border border-border/70 bg-background/80 p-5 shadow-sm backdrop-blur-sm sm:gap-5 sm:p-8"
     >
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl">
@@ -37,10 +37,10 @@ export function StoryPageIntro({
             {eyebrow}
           </Badge>
           <div className="mt-4 flex flex-col gap-3">
-            <h1 className="font-heading text-3xl leading-tight text-foreground sm:text-4xl">
+            <h1 className="font-heading text-2xl leading-tight text-foreground sm:text-4xl">
               {title}
             </h1>
-            <p className="max-w-2xl text-sm leading-7 text-foreground/75 sm:text-base">
+            <p className="max-w-2xl text-sm leading-6 text-foreground/75 sm:text-base sm:leading-7">
               {description}
             </p>
           </div>

@@ -72,18 +72,18 @@ export function StoryCreatorForm({
 
   return (
     <Card className="rounded-[2rem] border-border/80 bg-card shadow-sm">
-      <CardHeader className="gap-3">
+      <CardHeader className="gap-3 p-5 sm:p-6">
         <CardTitle className="font-heading text-2xl text-foreground">
           Set up the story brief
         </CardTitle>
-        <CardDescription className="max-w-2xl text-sm leading-7 text-foreground/75">
+        <CardDescription className="max-w-2xl text-sm leading-6 text-foreground/75 sm:leading-7">
           Start with a topic, then choose the reading level that matches the learners who will
           open this story.
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
-        <form onSubmit={onSubmit} className="flex flex-col gap-8">
+      <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6">
+        <form onSubmit={onSubmit} className="flex flex-col gap-6 sm:gap-8">
           <FieldGroup>
             <Field data-invalid={Boolean(promptError)}>
               <FieldLabel htmlFor="story-prompt" className="text-foreground">
@@ -137,7 +137,7 @@ export function StoryCreatorForm({
                     value={levelOption}
                     variant="outline"
                     size="lg"
-                    className="flex h-auto flex-1 flex-col items-start gap-3 rounded-3xl border-border bg-background px-4 py-4 text-left shadow-sm hover:border-foreground/20 hover:bg-secondary/70 data-[state=on]:border-primary data-[state=on]:bg-secondary data-[state=on]:shadow-md data-[state=on]:ring-2 data-[state=on]:ring-primary/15"
+                    className="flex h-auto flex-1 flex-col items-start gap-3 rounded-3xl border-border bg-background px-3.5 py-3.5 text-left shadow-sm hover:border-foreground/20 hover:bg-secondary/70 sm:px-4 sm:py-4 data-[state=on]:border-primary data-[state=on]:bg-secondary data-[state=on]:shadow-md data-[state=on]:ring-2 data-[state=on]:ring-primary/15"
                   >
                     <div className="flex w-full items-start justify-between gap-3">
                       <div className="flex flex-col gap-1">
@@ -174,7 +174,7 @@ export function StoryCreatorForm({
                 ))}
               </ToggleGroup>
 
-              <div className="rounded-[1.5rem] border border-border bg-secondary/55 p-4">
+              <div className="rounded-[1.5rem] border border-border bg-secondary/55 p-3.5 sm:p-4">
                 <div className="flex flex-col gap-2">
                   <p className="text-xs font-medium uppercase tracking-[0.24em] text-foreground/65">
                     Selected level

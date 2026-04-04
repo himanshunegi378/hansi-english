@@ -19,7 +19,7 @@ interface StoryPreviewProps {
  */
 export function StoryPreview({ story }: StoryPreviewProps) {
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6 pb-24 sm:p-8">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 pb-20 pt-2 sm:gap-8 sm:p-8 sm:pb-24">
       <StoryPageIntro
         eyebrow="Admin Review"
         title="Check the saved reading package before sending learners in."

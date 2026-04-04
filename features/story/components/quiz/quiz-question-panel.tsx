@@ -59,7 +59,7 @@ export function QuizQuestionPanel({
       className="w-full"
     >
       <Card className="rounded-[2rem] border-border/70 bg-card/95 shadow-sm">
-        <CardHeader className="flex flex-col gap-4">
+        <CardHeader className="flex flex-col gap-4 p-5 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <QuestionType type={question.type} />
             {savedAnswer ? (
@@ -71,7 +71,7 @@ export function QuizQuestionPanel({
           <QuestionTitle text={question.text} />
         </CardHeader>
 
-        <CardContent className="flex flex-col gap-6">
+        <CardContent className="flex flex-col gap-5 px-5 pb-5 sm:gap-6 sm:px-6 sm:pb-6">
           {isObjective ? (
             <div className="grid gap-3">
               {question.options?.map((option, index) => (
@@ -157,7 +157,7 @@ interface FeedbackPanelProps {
  */
 function FeedbackPanel({ canSaveProgress, question, savedAnswer }: FeedbackPanelProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-secondary/45 p-5">
+    <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-secondary/45 p-4 sm:p-5">
       <p className="text-sm font-medium text-foreground">
         {savedAnswer.isCorrect ? "Correct answer" : "Needs another try"}
       </p>

@@ -78,7 +78,7 @@ export function StoryCreator({ readOnlyStory }: StoryCreatorProps = {}) {
   }
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6 pb-24 sm:p-8">
+    <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 pb-20 pt-2 sm:gap-8 sm:p-8 sm:pb-24">
       <StoryPageIntro
         eyebrow="Admin Workspace"
         title="Build stories the way learners will actually read them."
@@ -100,7 +100,7 @@ export function StoryCreator({ readOnlyStory }: StoryCreatorProps = {}) {
         }
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_22rem]">
+      <div className="grid gap-5 sm:gap-6 xl:grid-cols-[minmax(0,1.25fr)_22rem]">
         <StoryCreatorForm
           isGeneratingStory={isGeneratingStory}
           level={level}
@@ -111,7 +111,7 @@ export function StoryCreator({ readOnlyStory }: StoryCreatorProps = {}) {
         />
 
         <Card className="rounded-[2rem] border-border/70 bg-card/80 shadow-sm">
-          <CardContent className="flex h-full flex-col gap-5 p-6">
+          <CardContent className="flex h-full flex-col gap-4 p-5 sm:gap-5 sm:p-6">
             <div className="flex flex-col gap-2">
               <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
                 Workflow

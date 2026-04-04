@@ -20,18 +20,18 @@ export default async function StoriesPage() {
   const canCreateStories = session?.user?.role === "ADMIN";
 
   return (
-    <main className="relative min-h-screen px-6 py-10 sm:px-8 sm:py-12 lg:px-10">
-      <div className="relative mx-auto flex max-w-7xl flex-col gap-8">
-        <section id="story-library" className="flex flex-col gap-4">
+    <main className="relative min-h-screen px-5 py-8 sm:px-8 sm:py-12 lg:px-10">
+      <div className="relative mx-auto flex max-w-7xl flex-col gap-6 sm:gap-8">
+        <section id="story-library" className="flex flex-col gap-5 sm:gap-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex max-w-3xl flex-col gap-2">
-              <p className="text-sm uppercase tracking-[0.28em] text-muted-foreground">
+              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground sm:text-sm sm:tracking-[0.28em]">
                 Shared collection
               </p>
-              <h2 className="font-heading text-3xl tracking-[-0.04em] sm:text-4xl">
+              <h2 className="font-heading text-2xl tracking-[-0.04em] sm:text-4xl">
                 Choose a story and continue reading in context.
               </h2>
-              <p className="max-w-2xl text-sm leading-7 text-foreground/75">
+              <p className="max-w-2xl text-sm leading-6 text-foreground/75 sm:leading-7">
                 Each saved story combines reading practice, inline meaning support, and a short
                 comprehension check.
               </p>
@@ -40,7 +40,7 @@ export default async function StoriesPage() {
             {canCreateStories ? (
               <Link
                 href="/story"
-                className={cn(buttonVariants({ variant: "default" }), "rounded-full px-5")}
+                className={cn(buttonVariants({ variant: "default" }), "rounded-full px-5 sm:self-start")}
               >
                 <Sparkles data-icon="inline-start" />
                 Create story

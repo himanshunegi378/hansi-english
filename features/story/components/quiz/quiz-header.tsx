@@ -26,14 +26,14 @@ export function QuizHeader({
   totalQuestions,
 }: QuizHeaderProps) {
   return (
-    <div className="flex flex-col gap-5 rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm">
+    <div className="flex flex-col gap-4 rounded-[2rem] border border-border/70 bg-card/90 p-5 shadow-sm sm:gap-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-2">
           <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
             Study tools
           </p>
-          <h3 className="font-heading text-2xl text-foreground">Comprehension check</h3>
-          <p className="text-sm leading-7 text-muted-foreground">
+          <h3 className="font-heading text-xl text-foreground sm:text-2xl">Comprehension check</h3>
+          <p className="text-sm leading-6 text-muted-foreground sm:leading-7">
             Question {currentQuestionIndex + 1} of {totalQuestions}
           </p>
         </div>
