@@ -33,7 +33,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
     }
 
     return (
-      <main className="min-h-screen bg-linear-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-zinc-900 pt-12">
+      <main className="min-h-screen bg-linear-to-b from-background via-secondary/20 to-background pt-10">
         {isAdmin ? (
           <StoryCreator readOnlyStory={story} />
         ) : (
@@ -52,7 +52,7 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-zinc-50 to-white dark:from-zinc-950 dark:to-zinc-900 pt-12">
+    <main className="min-h-screen bg-linear-to-b from-background via-secondary/20 to-background pt-10">
       <StoryCreator />
     </main>
   );

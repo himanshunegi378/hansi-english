@@ -26,25 +26,28 @@ export function QuizHeader({
   totalQuestions,
 }: QuizHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 px-2">
+    <div className="flex flex-col gap-5 rounded-[2rem] border border-border/70 bg-card/90 p-6 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h3 className="text-2xl font-semibold text-foreground">Comprehension Check</h3>
-          <p className="text-sm text-muted-foreground">
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
+            Study tools
+          </p>
+          <h3 className="font-heading text-2xl text-foreground">Comprehension check</h3>
+          <p className="text-sm leading-7 text-muted-foreground">
             Question {currentQuestionIndex + 1} of {totalQuestions}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="rounded-full px-3 py-1">
             <Trophy data-icon="inline-start" />
             {progress?.earnedPoints ?? 0}/{progress?.totalPoints ?? totalQuestions * 10} pts
           </Badge>
-          <Badge variant="outline">
+          <Badge variant="outline" className="rounded-full bg-background/70 px-3 py-1">
             <CircleHelp data-icon="inline-start" />
             {answeredCount}/{totalQuestions} answered
           </Badge>
           {progress?.completedAt ? (
-            <Badge>
+            <Badge className="rounded-full px-3 py-1">
               <CheckCircle2 data-icon="inline-start" />
               Completed
             </Badge>

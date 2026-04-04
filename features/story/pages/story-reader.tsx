@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Trophy } from "lucide-react";
+import { CheckCircle2, CircleHelp, Trophy } from "lucide-react";
 import { type PersistedStory } from "../types";
 import { StoryCard } from "../components/story-card";
+import { StoryPageIntro } from "../components/story-page-intro";
 import { QuestionRenderer } from "../components/question-renderer";
 
 /**
@@ -23,26 +23,32 @@ export function StoryReader({
   const earnedPoints = story.viewerProgress?.earnedPoints ?? 0;
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-8 p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center flex flex-col gap-2"
-      >
-        <h1 className="text-4xl font-extrabold tracking-tight bg-linear-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
-          Story Reader
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Immerse yourself in the story and test your understanding.
-        </p>
-      </motion.div>
+    <div className="mx-auto flex max-w-6xl flex-col gap-8 p-6 pb-24 sm:p-8">
+      <StoryPageIntro
+        eyebrow="Reading Workspace"
+        title="Read first, then check understanding."
+        description="The story stays central, while the comprehension tools sit alongside your progress so the learning flow feels supportive instead of crowded."
+        meta={
+          <>
+            <Badge variant="secondary" className="rounded-full px-3 py-1">
+              <Trophy data-icon="inline-start" />
+              {earnedPoints}/{totalPoints} pts
+            </Badge>
+            <Badge variant="outline" className="rounded-full bg-background/70 px-3 py-1">
+              <CircleHelp data-icon="inline-start" />
+              {story.questions.length} questions
+            </Badge>
+            {story.viewerProgress?.completedAt ? (
+              <Badge className="rounded-full px-3 py-1">
+                <CheckCircle2 data-icon="inline-start" />
+                Story completed
+              </Badge>
+            ) : null}
+          </>
+        }
+      />
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="flex flex-col gap-12 pb-24"
-      >
+      <div className="flex flex-col gap-10">
         <StoryCard
           title={story.title}
           prompt={story.prompt}
@@ -78,7 +84,7 @@ export function StoryReader({
           }))}
           storyId={story.id}
         />
-      </motion.div>
+      </div>
     </div>
   );
 }

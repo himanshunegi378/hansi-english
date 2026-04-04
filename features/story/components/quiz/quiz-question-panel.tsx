@@ -55,9 +55,10 @@ export function QuizQuestionPanel({
       initial={{ opacity: 0, x: 16 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -16 }}
+      transition={{ duration: 0.24, ease: "easeOut" }}
       className="w-full"
     >
-      <Card className="border-border/60 bg-card/90 shadow-xl">
+      <Card className="rounded-[2rem] border-border/70 bg-card/95 shadow-sm">
         <CardHeader className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <QuestionType type={question.type} />
@@ -118,7 +119,7 @@ export function QuizQuestionPanel({
           ) : null}
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Button type="button" onClick={onSubmit} disabled={isPending}>
+            <Button type="button" onClick={onSubmit} disabled={isPending} className="rounded-full">
               {isPending ? <LoaderCircle data-icon="inline-start" className="animate-spin" /> : null}
               {question.options?.length ? "Check Answer" : "Check with AI"}
             </Button>
@@ -131,7 +132,7 @@ export function QuizQuestionPanel({
             ) : null}
 
             {savedAnswer && showNextAction ? (
-              <Button type="button" variant="outline" onClick={onNext}>
+              <Button type="button" variant="outline" onClick={onNext} className="rounded-full">
                 Next Question
                 <ChevronRight data-icon="inline-end" />
               </Button>
@@ -156,7 +157,7 @@ interface FeedbackPanelProps {
  */
 function FeedbackPanel({ canSaveProgress, question, savedAnswer }: FeedbackPanelProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/40 p-4">
+    <div className="flex flex-col gap-3 rounded-3xl border border-border/70 bg-secondary/45 p-5">
       <p className="text-sm font-medium text-foreground">
         {savedAnswer.isCorrect ? "Correct answer" : "Needs another try"}
       </p>

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import type { EnglishLevel } from "../types";
 import { TextMeaning } from "@/features/text-meaning";
 
@@ -29,28 +30,38 @@ interface StoryCardProps {
  */
 export function StoryCard({ title, prompt, level, content, footer }: StoryCardProps) {
   return (
-    <Card className="overflow-hidden border-none shadow-2xl bg-white dark:bg-zinc-950">
-      <div className="h-2 bg-linear-to-r from-blue-500 to-indigo-600" />
-      <CardHeader className="flex flex-col gap-4">
+    <Card className="overflow-hidden rounded-[2rem] border-border/70 bg-card/90 shadow-sm">
+      <CardHeader className="flex flex-col gap-5 p-6 sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-col gap-2">
-            <CardTitle className="text-4xl font-serif tracking-tight">{title}</CardTitle>
-            <CardDescription className="italic">{prompt}</CardDescription>
+          <div className="flex max-w-3xl flex-col gap-3">
+            <Badge variant="outline" className="w-fit rounded-full bg-secondary/70 px-3 py-1">
+              Reading text
+            </Badge>
+            <CardTitle className="font-heading text-3xl tracking-tight text-foreground sm:text-4xl">
+              {title}
+            </CardTitle>
+            <CardDescription className="text-sm leading-7 text-muted-foreground sm:text-base">
+              {prompt}
+            </CardDescription>
           </div>
-          <Badge variant="secondary" className="px-3 py-1 font-bold">
+          <Badge variant="secondary" className="rounded-full px-3 py-1 font-medium">
             {levelLabels[level]}
           </Badge>
         </div>
+
+        <Separator className="bg-border/70" />
       </CardHeader>
-      <CardContent>
+
+      <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
         <TextMeaning>
-          <div className="prose prose-lg dark:prose-invert max-w-none leading-relaxed text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap font-serif text-xl border-t pt-8">
+          <div className="max-w-none whitespace-pre-wrap border-none font-heading text-[1.12rem] leading-9 text-foreground/90 sm:text-[1.2rem]">
             {content}
           </div>
         </TextMeaning>
       </CardContent>
+
       {footer ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t p-6 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border/70 bg-secondary/35 px-6 py-5 sm:px-8">
           {footer}
         </div>
       ) : null}

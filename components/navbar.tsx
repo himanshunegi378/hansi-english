@@ -1,14 +1,19 @@
 "use client"
 
-import React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Library, LogIn } from "lucide-react";
+import { BookOpenText, Library, LogIn, PenSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { UserNav } from "@/components/user-nav";
 import { motion } from "framer-motion";
-import { Session } from "next-auth";
+import { Badge } from "@/components/ui/badge";
+import { type Session } from "next-auth";
+
+const navigationItems = [
+  { href: "/", label: "Home" },
+  { href: "/story", label: "Story Studio", icon: PenSquare },
+  { href: "/stories", label: "Library", icon: Library },
+];
 
 interface NavbarProps {
   session: Session | null;
@@ -19,51 +24,57 @@ interface NavbarProps {
  */
 export function Navbar({ session }: NavbarProps) {
   return (
-    <motion.header 
+    <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 dark:bg-black/80 dark:border-zinc-800"
+      className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/80 backdrop-blur-xl"
     >
-      <div className="flex items-center justify-between p-4 max-w-7xl mx-auto h-16">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-90">
-            <div className="bg-blue-600 p-1.5 rounded-xl shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300">
-              <Image
-                className="invert"
-                src="/next.svg"
-                alt="Next.js logo"
-                width={64}
-                height={12}
-                priority
-              />
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-6 sm:px-8 lg:px-10">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="group flex items-center gap-3 transition-opacity hover:opacity-90">
+            <div className="flex size-11 items-center justify-center rounded-full border border-border/70 bg-secondary text-secondary-foreground">
+              <BookOpenText />
             </div>
-            <span className="text-xl font-bold tracking-tight hidden sm:block bg-linear-to-br from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
-              Hansi English
-            </span>
+            <div className="flex flex-col">
+              <span className="font-heading text-2xl leading-none tracking-[-0.04em]">
+                Hansi English
+              </span>
+              <span className="hidden text-[0.68rem] uppercase tracking-[0.28em] text-muted-foreground sm:block">
+                Story-based learning
+              </span>
+            </div>
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link
-              href="/stories"
-              className="text-muted-foreground transition-all hover:text-primary hover:translate-x-0.5 flex items-center gap-1.5"
-            >
-              <Library data-icon="inline-start" /> Stories
-            </Link>
+
+          <nav className="hidden items-center gap-2 rounded-full border border-border/70 bg-background/70 p-1 md:flex">
+            {navigationItems.map(({ href, icon: Icon, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                {Icon ? <Icon /> : null}
+                <span>{label}</span>
+              </Link>
+            ))}
           </nav>
         </div>
 
         <div className="flex items-center gap-4">
           {session ? (
             <div className="flex items-center gap-4">
-              <span className="text-xs text-muted-foreground hidden lg:block bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md border border-zinc-200 dark:border-zinc-700">
-                Logged in as <span className="font-semibold text-foreground uppercase">{session.user?.role}</span>
-              </span>
+              <Badge variant="outline" className="hidden rounded-full px-3 py-1 text-[0.68rem] uppercase tracking-[0.24em] lg:inline-flex">
+                {session.user?.role ?? "Learner"}
+              </Badge>
               <UserNav />
             </div>
           ) : (
-            <Link 
-              href="/login" 
-              className={cn(buttonVariants({ variant: "default", size: "sm" }), "rounded-full px-5 transition-transform active:scale-95")}
+            <Link
+              href="/login"
+              className={cn(
+                buttonVariants({ variant: "default", size: "sm" }),
+                "rounded-full px-5 transition-transform active:scale-95",
+              )}
             >
               <LogIn data-icon="inline-start" /> Login
             </Link>

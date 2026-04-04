@@ -5,6 +5,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <!-- END:nextjs-agent-rules -->
 - use pnpm as package manager
 - use shadcn ui for components (use its skill and frontend desing skill)
+- read `BRAND_UI_GUIDELINES.md` before generating or changing UI so the product stays visually consistent
 - use theme colors only
 - use framer motion and its skill for animations
 - use prisma for database (use its skill)

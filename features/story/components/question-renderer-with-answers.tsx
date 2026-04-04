@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { type GeneratedQuestion } from "../types";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { 
   QuestionType, 
   AnswerIndicator, 
@@ -23,25 +24,33 @@ interface QuestionRendererWithAnswersProps {
 export function QuestionRendererWithAnswers({ questions }: QuestionRendererWithAnswersProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
       className="flex flex-col gap-6"
     >
-      <header className="flex justify-between items-center px-2">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 mb-1">
-            <h2 id="preview-heading" className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-              Question Preview
-            </h2>
-            <Badge variant="outline" className="bg-zinc-100/50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-none px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold">
-              {questions.length} Questions
+      <Card className="rounded-[2rem] border-border/70 bg-card/90 shadow-sm">
+        <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex max-w-2xl flex-col gap-2">
+              <p className="text-xs font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                Validation tools
+              </p>
+              <h2 id="preview-heading" className="font-heading text-2xl text-foreground sm:text-3xl">
+                Question review
+              </h2>
+              <p className="text-sm leading-7 text-muted-foreground">
+                Check that each question is clear, answerable from the story, and aligned with the
+                reading level.
+              </p>
+            </div>
+            <Badge variant="outline" className="rounded-full bg-background/70 px-3 py-1">
+              {questions.length} questions
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Complete overview of generated logic and answer keys.
-          </p>
-        </div>
-      </header>
+          <Separator className="bg-border/70" />
+        </CardContent>
+      </Card>
 
       <div 
         className="grid gap-6" 
@@ -57,11 +66,11 @@ export function QuestionRendererWithAnswers({ questions }: QuestionRendererWithA
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Card className="overflow-hidden border-zinc-200 dark:border-zinc-800 shadow-sm transition-shadow hover:shadow-md">
-                <CardHeader className="pb-3 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800/50">
-                  <div className="flex items-center justify-between gap-2 mb-2">
+              <Card className="overflow-hidden rounded-[2rem] border-border/70 bg-card/90 shadow-sm transition-shadow hover:shadow-md">
+                <CardHeader className="gap-3 border-b border-border/70 bg-secondary/35 pb-4">
+                  <div className="mb-1 flex items-center justify-between gap-2">
                     <QuestionType type={question.type} />
-                    {question.correctAnswer && <AnswerIndicator />}
+                    {question.correctAnswer ? <AnswerIndicator /> : null}
                   </div>
                   <QuestionTitle text={question.text} />
                 </CardHeader>

@@ -23,7 +23,7 @@ export function QuizProgressDots({
   questionIds,
 }: QuizProgressDotsProps) {
   return (
-    <div className="flex flex-wrap justify-center gap-2">
+    <div className="flex flex-wrap justify-center gap-2 rounded-full border border-border/70 bg-background/80 px-4 py-3 shadow-sm backdrop-blur-sm">
       {questionIds.map((questionId, index) => (
         <button
           key={questionId}
