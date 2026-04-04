@@ -6,6 +6,11 @@
       "sourceType": "github",
       "computedHash": "954e5469d49493b8170b2f977ff7cf343efb0046cff3e5d9165b93e36860965d"
     },
+    "building-components": {
+      "source": "vercel/components.build",
+      "sourceType": "github",
+      "computedHash": "20889af7cb9b3abca1e38824f7fffaa873eb0cc4d45187967b97bd85462cf934"
+    },
     "groq-sdk-patterns": {
       "source": "jeremylongshore/claude-code-plugins-plus-skills",
       "sourceType": "github",

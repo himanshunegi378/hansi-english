@@ -9,14 +9,16 @@ import {
   useGenerateStory,
   useSaveStory,
 } from "../hooks/use-story-actions";
-import { QuestionRendererWithAnswers } from "./question-renderer-with-answers";
+import { StoryPreview } from "./story-preview";
+import { QuestionRendererWithAnswers } from "../components/question-renderer-with-answers";
+import { StoryCard } from "../components/story-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { type EnglishLevel, type GeneratedQuestion, type GeneratedStoryDraft } from "../types";
+import { type EnglishLevel, type GeneratedQuestion, type GeneratedStoryDraft, type PersistedStory } from "../types";
 import { CheckCircle2, Save } from "lucide-react";
 
 const levelLabels: Record<EnglishLevel, string> = {
@@ -31,11 +33,18 @@ const levelDescription: Record<EnglishLevel, string> = {
   ADVANCED: "Fluent, rich vocabulary, nuanced emotions for proficient speakers.",
 };
 
+interface StoryCreatorProps {
+  /** When provided, skips the generation form and shows a read-only preview of the story. */
+  readOnlyStory?: PersistedStory;
+}
+
 /**
  * Renders the admin story creation flow with local generation and explicit save.
+ * When readOnlyStory is provided, shows a read-only preview of that saved story.
+ * @param props Optional persisted story for read-only admin preview.
  * @returns The interactive story creator screen.
  */
-export function StoryCreator() {
+export function StoryCreator({ readOnlyStory }: StoryCreatorProps = {}) {
   const [level, setLevel] = useState<EnglishLevel>("BEGINNER");
   const [story, setStory] = useState<GeneratedStoryDraft | null>(null);
   const [questions, setQuestions] = useState<GeneratedQuestion[] | null>(null);
@@ -78,6 +87,10 @@ export function StoryCreator() {
     const levels: EnglishLevel[] = ["BEGINNER", "INTERMEDIATE", "ADVANCED"];
     setLevel(levels[selected]);
   };
+
+  if (readOnlyStory) {
+    return <StoryPreview story={readOnlyStory} />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 flex flex-col gap-8">
@@ -169,50 +182,47 @@ export function StoryCreator() {
             transition={{ duration: 0.3 }}
             className="flex flex-col gap-6 pb-20"
           >
-            <Card className="overflow-hidden border-none shadow-2xl">
-              <div className="h-2 bg-linear-to-r from-blue-500 to-indigo-600" />
-              <CardHeader>
-                <CardTitle className="text-3xl font-serif">{story.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="prose prose-lg dark:prose-invert max-w-none leading-relaxed text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap font-serif">
-                  {story.content}
-                </div>
-              </CardContent>
-              <div className="flex flex-wrap items-center justify-between gap-3 border-t p-6 pt-4">
-                <p className="text-sm text-muted-foreground">
-                  {savedStoryId ? "This story is already saved in the shared library." : "Generate questions, review the quiz, then save the full story package."}
-                </p>
-                {!questions ? (
-                  <Button
-                    onClick={generateQuestions}
-                    disabled={isGeneratingQuestions}
-                    variant="outline"
-                    className="border-primary/50 text-primary hover:bg-primary/5"
-                  >
-                    {isGeneratingQuestions ? (
-                      <Spinner data-icon="inline-start" />
-                    ) : null}
-                    {isGeneratingQuestions ? "Creating Quiz..." : "Generate Questions"}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={saveStory}
-                    disabled={isSavingStory || Boolean(savedStoryId)}
-                    className="bg-linear-to-r from-blue-600 to-indigo-600 hover:opacity-90 transition-opacity"
-                  >
-                    {isSavingStory ? (
-                      <Spinner data-icon="inline-start" />
-                    ) : savedStoryId ? (
-                      <CheckCircle2 data-icon="inline-start" />
-                    ) : (
-                      <Save data-icon="inline-start" />
-                    )}
-                    {isSavingStory ? "Saving..." : savedStoryId ? "Saved to Library" : "Save Story"}
-                  </Button>
-                )}
-              </div>
-            </Card>
+            <StoryCard
+              title={story.title}
+              prompt={story.prompt}
+              level={story.level}
+              content={story.content}
+              footer={
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    {savedStoryId ? "This story is already saved in the shared library." : "Generate questions, review the quiz, then save the full story package."}
+                  </p>
+                  {!questions ? (
+                    <Button
+                      onClick={generateQuestions}
+                      disabled={isGeneratingQuestions}
+                      variant="outline"
+                      className="border-primary/50 text-primary hover:bg-primary/5"
+                    >
+                      {isGeneratingQuestions ? (
+                        <Spinner data-icon="inline-start" />
+                      ) : null}
+                      {isGeneratingQuestions ? "Creating Quiz..." : "Generate Questions"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={saveStory}
+                      disabled={isSavingStory || Boolean(savedStoryId)}
+                      className="bg-linear-to-r from-blue-600 to-indigo-600 hover:opacity-90 transition-opacity"
+                    >
+                      {isSavingStory ? (
+                        <Spinner data-icon="inline-start" />
+                      ) : savedStoryId ? (
+                        <CheckCircle2 data-icon="inline-start" />
+                      ) : (
+                        <Save data-icon="inline-start" />
+                      )}
+                      {isSavingStory ? "Saving..." : savedStoryId ? "Saved to Library" : "Save Story"}
+                    </Button>
+                  )}
+                </>
+              }
+            />
 
             {questions ? (
               <QuestionRendererWithAnswers questions={questions} />

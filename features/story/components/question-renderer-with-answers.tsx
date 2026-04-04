@@ -1,19 +1,24 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Info } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { type GeneratedQuestion } from "../types";
+import { Badge } from "@/components/ui/badge";
+import { 
+  QuestionType, 
+  AnswerIndicator, 
+  QuestionTitle, 
+  QuestionOption,
+  QuestionOpenEnded
+} from "./ui/question";
 
 interface QuestionRendererWithAnswersProps {
   questions: GeneratedQuestion[];
 }
 
 /**
- * Renders the generated questions with answer guidance for admin review.
- * @param props The question renderer configuration and event handlers.
- * @returns The interactive question-and-answers section.
+ * Renders questions in a read-only state for admin validation.
+ * Correct answers are highlighted immediately to assist in quality control.
  */
 export function QuestionRendererWithAnswers({ questions }: QuestionRendererWithAnswersProps) {
   return (
@@ -22,80 +27,59 @@ export function QuestionRendererWithAnswers({ questions }: QuestionRendererWithA
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col gap-6"
     >
-      <div className="flex justify-between items-end px-2">
-        <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-          Question Preview
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Correct answers are shown by default for admin review.
-        </p>
-      </div>
+      <header className="flex justify-between items-center px-2">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 mb-1">
+            <h2 id="preview-heading" className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+              Question Preview
+            </h2>
+            <Badge variant="outline" className="bg-zinc-100/50 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-none px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold">
+              {questions.length} Questions
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Complete overview of generated logic and answer keys.
+          </p>
+        </div>
+      </header>
 
-      <div className="grid gap-6">
+      <div 
+        className="grid gap-6" 
+        role="list" 
+        aria-labelledby="preview-heading"
+      >
         {questions.map((question, index) => {
           return (
             <motion.div
-              key={question.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
+              key={question.id || index}
+              role="listitem"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <Card className="overflow-hidden border-zinc-200 dark:border-zinc-800">
-                <CardHeader className="pb-3 bg-zinc-50/50 dark:bg-zinc-900/50">
+              <Card className="overflow-hidden border-zinc-200 dark:border-zinc-800 shadow-sm transition-shadow hover:shadow-md">
+                <CardHeader className="pb-3 bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800/50">
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-xs font-bold tracking-widest uppercase px-2 py-0.5 rounded bg-background border shadow-xs text-muted-foreground">
-                      {question.type.replace("_", " ")}
-                    </span>
-                    {question.correctAnswer ? (
-                      <span
-                        className={cn(
-                          "flex items-center gap-1 text-sm font-medium text-green-600"
-                        )}
-                      >
-                        <CheckCircle2 data-icon="inline-start" /> Answer Included
-                      </span>
-                    ) : null}
+                    <QuestionType type={question.type} />
+                    {question.correctAnswer && <AnswerIndicator />}
                   </div>
-                  <p className="text-lg font-medium leading-snug">{question.text}</p>
+                  <QuestionTitle text={question.text} />
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className="pt-5">
                   {question.options ? (
-                    <div className="grid gap-2">
-                      {question.options.map((option, optionIndex) => {
-                        const isOptionCorrect = option === question.correctAnswer;
-
-                        return (
-                          <div
-                            key={optionIndex}
-                            className={cn(
-                              "w-full text-left p-3 rounded-lg border transition-all duration-200 group flex items-center justify-between",
-                              isOptionCorrect
-                                ? "border-green-500 bg-green-50 dark:bg-green-900/20 ring-1 ring-green-500"
-                                : "opacity-60"
-                            )}
-                          >
-                            <span className="flex-1">{option}</span>
-                            {isOptionCorrect ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 ml-2" />
-                            ) : null}
-                          </div>
-                        );
-                      })}
+                    <div className="grid gap-2.5" role="group" aria-label="Multiple choice options">
+                      {question.options.map((option, optionIndex) => (
+                        <QuestionOption
+                          key={optionIndex}
+                          index={optionIndex}
+                          option={option}
+                          isCorrect={option === question.correctAnswer}
+                          disabled
+                        />
+                      ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-3">
-                      <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Info data-icon="inline-start" /> This is an open-ended question.
-                      </p>
-                      {question.correctAnswer ? (
-                        <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                          <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1">
-                            Answer Guide
-                          </p>
-                          <p className="text-sm">{question.correctAnswer}</p>
-                        </div>
-                      ) : null}
-                    </div>
+                    <QuestionOpenEnded correctAnswer={question.correctAnswer} />
                   )}
                 </CardContent>
               </Card>

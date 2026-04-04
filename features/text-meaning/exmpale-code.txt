@@ -1,0 +1,339 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { BookOpen, AlertCircle, Loader2, X, Volume2 } from 'lucide-react';
+
+// --- Custom MeaningText Component ---
+// This component wraps any text content and adds the "highlight-to-define" functionality.
+const MeaningText = ({ children }) => {
+  const [selectionInfo, setSelectionInfo] = useState(null);
+  const [meaningData, setMeaningData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef(null);
+  const tooltipRef = useRef(null);
+
+  // Detect if we are on a mobile screen to change UI layout
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile(); // Check on mount
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Cause -> Effect: When a user finishes selecting text (mouse up or key up), 
+  // we capture the selection using the native browser Window.getSelection() API.
+  const handleSelection = () => {
+    const selection = window.getSelection();
+    
+    // If there's no selection or it's empty, close the tooltip.
+    if (!selection || selection.isCollapsed || selection.toString().trim() === '') {
+      return;
+    }
+
+    const text = selection.toString().trim();
+    
+    // Check if the selection is inside our component to prevent triggering on global selections
+    if (containerRef.current && containerRef.current.contains(selection.anchorNode)) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+
+      // Calculate position relative to the viewport (fixed positioning)
+      setSelectionInfo({
+        text,
+        top: rect.top,
+        left: rect.left + rect.width / 2, // Center of the selection
+      });
+      
+      fetchMeaning(text);
+    }
+  };
+
+  // Cause -> Effect: Mobile devices finalize text selection slightly AFTER the user's
+  // finger leaves the screen. We wait 100ms before checking the selection.
+  const handleTouchEnd = () => {
+    setTimeout(() => {
+      handleSelection();
+    }, 100);
+  };
+
+  const fetchMeaning = async (word) => {
+    // If the user selects a whole sentence, the Dictionary API will fail. 
+    // We restrict it to short phrases (under 3 words) for better results.
+    const wordCount = word.split(/\s+/).length;
+    if (wordCount > 3) {
+      setMeaningData(null);
+      setError("Please select a single word or short phrase to see its meaning.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setMeaningData(null);
+
+    try {
+      // Remove punctuation for the API call
+      const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+      
+      // Cause -> Effect: We run two API calls in parallel to get dual languages.
+      // 1. Dictionary API for English meaning, parts of speech, and audio.
+      const dictPromise = fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord}`).then(res => {
+        if (!res.ok) throw new Error("Definition not found.");
+        return res.json();
+      });
+
+      // 2. MyMemory Translation API for the Hindi translation.
+      const translationPromise = fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(cleanWord)}&langpair=en|hi`).then(res => res.json());
+
+      // Wait for both network requests to finish simultaneously
+      const [dictResult, translationResult] = await Promise.allSettled([dictPromise, translationPromise]);
+      
+      if (dictResult.status === 'rejected') {
+        throw new Error(dictResult.reason.message || "Could not fetch meaning.");
+      }
+
+      const englishData = dictResult.value[0];
+      let hindiTranslation = null;
+
+      // Extract Hindi translation if the second API call succeeded
+      if (translationResult.status === 'fulfilled' && translationResult.value?.responseData?.translatedText) {
+        hindiTranslation = translationResult.value.responseData.translatedText;
+      }
+
+      // Merge both datasets into our component state
+      setMeaningData({
+        ...englishData,
+        hindiTranslation
+      }); 
+    } catch (err) {
+      setError(err.message || "Could not fetch meaning.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Close tooltip when clicking outside of it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        tooltipRef.current && 
+        !tooltipRef.current.contains(event.target) &&
+        (!containerRef.current || !containerRef.current.contains(event.target))
+      ) {
+        setSelectionInfo(null);
+        window.getSelection().removeAllRanges(); // Clear text selection
+      }
+    };
+
+    // Close tooltip on scroll to prevent it from floating away from the text
+    const handleScroll = () => {
+      if (selectionInfo) {
+        setSelectionInfo(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [selectionInfo]);
+
+  const playAudio = (phonetics) => {
+    const audioUrl = phonetics.find(p => p.audio)?.audio;
+    if (audioUrl) {
+      new Audio(audioUrl).play();
+    }
+  };
+
+  return (
+    <>
+      {/* Wrapper for the selectable text */}
+      <div 
+        ref={containerRef} 
+        onMouseUp={handleSelection} 
+        onKeyUp={handleSelection}
+        onTouchEnd={handleTouchEnd}
+        className="cursor-text selection:bg-indigo-200 dark:selection:bg-indigo-900"
+      >
+        {children}
+      </div>
+
+      {/* Floating Tooltip / Bottom Sheet UI */}
+      {selectionInfo && (
+        <div
+          ref={tooltipRef}
+          style={isMobile ? {
+            position: 'fixed',
+            bottom: '0',
+            left: '0',
+            width: '100%',
+            zIndex: 50,
+          } : {
+            position: 'fixed',
+            top: `${selectionInfo.top - 12}px`, 
+            left: `${selectionInfo.left}px`,
+            transform: 'translate(-50%, -100%)', 
+            zIndex: 50,
+          }}
+          className={`bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-4 animate-in fade-in
+            ${isMobile 
+              ? 'rounded-t-2xl rounded-b-none slide-in-from-bottom-full pb-8' // Mobile Bottom Sheet
+              : 'w-80 max-w-[90vw] rounded-xl slide-in-from-bottom-2 duration-200' // Desktop Tooltip
+            }
+          `}
+        >
+          {/* Tooltip Arrow (Only visible on Desktop) */}
+          {!isMobile && (
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-slate-800 border-b border-r border-slate-200 dark:border-slate-700 rotate-45"></div>
+          )}
+
+          {/* Mobile Drag Handle (Visual only) */}
+          {isMobile && (
+            <div className="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4"></div>
+          )}
+
+          <div className="relative z-10 flex flex-col gap-3">
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-indigo-500 shrink-0" />
+                  <h3 className="font-bold text-lg text-slate-900 dark:text-white capitalize">
+                    {selectionInfo.text}
+                  </h3>
+                </div>
+                {/* Display Hindi Translation */}
+                {meaningData?.hindiTranslation && !isLoading && (
+                  <span className="text-md font-medium text-emerald-600 dark:text-emerald-400 mt-0.5 ml-7">
+                    {meaningData.hindiTranslation}
+                  </span>
+                )}
+              </div>
+              <button 
+                onClick={() => setSelectionInfo(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Content States */}
+            {isLoading && (
+              <div className="flex items-center gap-2 text-slate-500 py-4 justify-center">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Searching dictionary...</span>
+              </div>
+            )}
+
+            {error && !isLoading && (
+              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg text-sm">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <p>{error}</p>
+              </div>
+            )}
+
+            {meaningData && !isLoading && (
+              <div className="flex flex-col gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                {/* Phonetics & Audio */}
+                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                  {meaningData.phonetic && <span>{meaningData.phonetic}</span>}
+                  {meaningData.phonetics?.some(p => p.audio) && (
+                    <button 
+                      onClick={() => playAudio(meaningData.phonetics)}
+                      className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+                      title="Play pronunciation"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Meanings loop */}
+                {meaningData.meanings.slice(0, 2).map((meaning, idx) => (
+                  <div key={idx} className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-indigo-500 dark:text-indigo-400">
+                      {meaning.partOfSpeech}
+                    </span>
+                    <ul className="list-disc list-outside ml-4 text-sm text-slate-700 dark:text-slate-300 space-y-1">
+                      {meaning.definitions.slice(0, 2).map((def, defIdx) => (
+                        <li key={defIdx}>
+                          {def.definition}
+                          {def.example && (
+                            <p className="text-slate-500 dark:text-slate-400 italic mt-0.5">
+                              "{def.example}"
+                            </p>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+// --- Main App Component ---
+export default function App() {
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-8 md:p-16 font-sans">
+      <div className="max-w-2xl mx-auto space-y-8">
+        
+        <header className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-4">
+            <BookOpen className="w-4 h-4" /> Interactive Reading
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            The Enigmatic Universe
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400">
+            Highlight any word in the text below to discover its meaning instantly.
+          </p>
+        </header>
+
+        <main className="prose prose-slate dark:prose-invert prose-lg max-w-none bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+          
+          <MeaningText>
+            <p className="mb-6">
+              The cosmos is a vast, unfathomable expanse filled with celestial anomalies and scintillating galaxies. For centuries, humanity has gazed upward, driven by an insatiable curiosity to understand our place in this ubiquitous darkness. 
+            </p>
+            <p className="mb-6">
+              Astronomers utilize sophisticated telescopes to capture the luminescence of distant nebulae, revealing serendipitous discoveries that challenge our preconceived notions of physics. From the ephemeral glow of meteor showers to the inexorable pull of supermassive black holes, the universe remains a profound enigma.
+            </p>
+            <p>
+              It is imperative that we continue our meticulous exploration. Every paradigm shift in our understanding brings us closer to unraveling the ephemeral tapestry of spacetime itself.
+            </p>
+          </MeaningText>
+
+        </main>
+        
+        <footer className="text-center text-sm text-slate-400 mt-12">
+          Powered by the Free Dictionary API. Try highlighting words like "unfathomable", "insatiable", or "inexorable".
+        </footer>
+      </div>
+
+      {/* Global styles for custom scrollbar inside tooltip */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #475569;
+        }
+      `}} />
+    </div>
+  );
+}
