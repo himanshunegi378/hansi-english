@@ -1,0 +1,27 @@
+features/text-meaning/components/meaning-tooltip.tsx
+  bb9ea71f23425b1e 109-112
+next-auth.d.ts
+  bb9ea71f23425b1e 16-23
+components/ai-chat.tsx
+  bb9ea71f23425b1e 18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "35e0442d97861cc0ec3ead1507d6bd51dd572d11",
+  "prompts": {
+    "bb9ea71f23425b1e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d5952-2ad0-7851-ac50-d395d8b4caf2",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 14,
+      "total_deletions": 4,
+      "accepted_lines": 14,
+      "overriden_lines": 0
+    }
+  }
+}
