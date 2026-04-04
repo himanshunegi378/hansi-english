@@ -1,0 +1,47 @@
+features/story/components/question-renderer-with-answers.tsx
+  430fbcad4ed43790 6-13,20-21,30-44,46-50,54-58,60-61,63-64,66,68,70-79,82
+app/story/page.tsx
+  430fbcad4ed43790 1,3,25-26,37-41,46-48
+features/story/index.ts
+  430fbcad4ed43790 5-6,8-9
+skills-lock.json
+  430fbcad4ed43790 9-13
+features/story/components/question-renderer.tsx
+  430fbcad4ed43790 1-210
+features/story/components/story-card.tsx
+  430fbcad4ed43790 1-6,8-45,51-59
+  ca113faba00d935e 7,46-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "1fb268fde57205d49ba9edae6893f8ac23ab0932",
+  "prompts": {
+    "430fbcad4ed43790": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d56cc-e9d0-7f72-94af-15241fae4095",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 341,
+      "total_deletions": 597,
+      "accepted_lines": 338,
+      "overriden_lines": 0
+    },
+    "ca113faba00d935e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d56cb-f81b-7993-bc64-1b9f0c532964",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 6,
+      "total_deletions": 3,
+      "accepted_lines": 6,
+      "overriden_lines": 0
+    }
+  }
+}
