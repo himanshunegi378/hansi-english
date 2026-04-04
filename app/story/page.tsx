@@ -37,7 +37,10 @@ export default async function StoryPage({ searchParams }: StoryPageProps) {
         {isAdmin ? (
           <StoryCreator readOnlyStory={story} />
         ) : (
-          <StoryReader story={story} />
+          <StoryReader
+            canSaveProgress={Boolean(session?.user)}
+            story={story}
+          />
         )}
       </main>
     );

@@ -1,0 +1,184 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { CheckCircle2, ChevronRight, LoaderCircle, LogIn } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
+import type { GeneratedQuestion, StoryAnswerValue, StoryQuestionAnswer } from "../../types";
+import {
+  QuestionOpenEnded,
+  QuestionOption,
+  QuestionTitle,
+  QuestionType,
+} from "../ui/question";
+
+interface QuizQuestionPanelProps {
+  canSaveProgress: boolean;
+  draftAnswer?: StoryAnswerValue;
+  isPending: boolean;
+  onNext: () => void;
+  onOptionChange: (option: string) => void;
+  onSubmit: () => void;
+  onTextChange: (value: string) => void;
+  question: GeneratedQuestion;
+  savedAnswer?: StoryQuestionAnswer;
+  showNextAction: boolean;
+}
+
+/**
+ * Renders the active quiz question, answer controls, and grading feedback.
+ * @param props The active question state and handlers.
+ * @returns The active question card.
+ */
+export function QuizQuestionPanel({
+  canSaveProgress,
+  draftAnswer,
+  isPending,
+  onNext,
+  onOptionChange,
+  onSubmit,
+  onTextChange,
+  question,
+  savedAnswer,
+  showNextAction,
+}: QuizQuestionPanelProps) {
+  const isObjective = (question.options?.length ?? 0) > 0;
+  const selectedOption =
+    draftAnswer?.valueType === "OPTION" ? draftAnswer.selectedOption ?? null : null;
+  const textValue = draftAnswer?.valueType === "TEXT" ? draftAnswer.textAnswer ?? "" : "";
+
+  return (
+    <motion.div
+      key={question.id}
+      initial={{ opacity: 0, x: 16 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -16 }}
+      className="w-full"
+    >
+      <Card className="border-border/60 bg-card/90 shadow-xl">
+        <CardHeader className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-3">
+            <QuestionType type={question.type} />
+            {savedAnswer ? (
+              <span className={savedAnswer.isCorrect ? "text-primary" : "text-muted-foreground"}>
+                <CheckCircle2 />
+              </span>
+            ) : null}
+          </div>
+          <QuestionTitle text={question.text} />
+        </CardHeader>
+
+        <CardContent className="flex flex-col gap-6">
+          {isObjective ? (
+            <div className="grid gap-3">
+              {question.options?.map((option, index) => (
+                <QuestionOption
+                  key={option}
+                  index={index}
+                  option={option}
+                  isSelected={selectedOption === option}
+                  isCorrect={savedAnswer?.isCorrect ? option === question.correctAnswer : false}
+                  isIncorrect={
+                    savedAnswer?.isCorrect === false && savedAnswer.selectedOption === option
+                  }
+                  onClick={() => onOptionChange(option)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <Field>
+                <FieldLabel htmlFor={`answer-${question.id}`}>Your answer</FieldLabel>
+                <Textarea
+                  id={`answer-${question.id}`}
+                  placeholder="Write your answer in simple English."
+                  value={textValue}
+                  onChange={(event) => onTextChange(event.target.value)}
+                  rows={5}
+                />
+                <FieldDescription>
+                  {canSaveProgress
+                    ? "Your response will be checked with AI and saved to this story."
+                    : "Sign in to save your response and get AI grading."}
+                </FieldDescription>
+              </Field>
+
+              <QuestionOpenEnded correctAnswer={savedAnswer ? question.correctAnswer : undefined} />
+            </div>
+          )}
+
+          {savedAnswer ? (
+            <FeedbackPanel
+              canSaveProgress={canSaveProgress}
+              question={question}
+              savedAnswer={savedAnswer}
+            />
+          ) : null}
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Button type="button" onClick={onSubmit} disabled={isPending}>
+              {isPending ? <LoaderCircle data-icon="inline-start" className="animate-spin" /> : null}
+              {question.options?.length ? "Check Answer" : "Check with AI"}
+            </Button>
+
+            {!canSaveProgress ? (
+              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <LogIn />
+                Sign in to keep this progress.
+              </p>
+            ) : null}
+
+            {savedAnswer && showNextAction ? (
+              <Button type="button" variant="outline" onClick={onNext}>
+                Next Question
+                <ChevronRight data-icon="inline-end" />
+              </Button>
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+interface FeedbackPanelProps {
+  canSaveProgress: boolean;
+  question: GeneratedQuestion;
+  savedAnswer: StoryQuestionAnswer;
+}
+
+/**
+ * Displays the grading result and saved answer details for the active question.
+ * @param props The graded answer payload.
+ * @returns A result summary block.
+ */
+function FeedbackPanel({ canSaveProgress, question, savedAnswer }: FeedbackPanelProps) {
+  return (
+    <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/40 p-4">
+      <p className="text-sm font-medium text-foreground">
+        {savedAnswer.isCorrect ? "Correct answer" : "Needs another try"}
+      </p>
+      <p className="text-sm text-muted-foreground">
+        {savedAnswer.feedback ??
+          (savedAnswer.isCorrect
+            ? "Nice work."
+            : "Review the story and update your answer whenever you want.")}
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Points earned: <span className="font-medium text-foreground">{savedAnswer.pointsEarned}</span>
+      </p>
+      {!question.options?.length && question.correctAnswer ? (
+        <p className="text-sm text-muted-foreground">
+          Answer guide: <span className="font-medium text-foreground">{question.correctAnswer}</span>
+        </p>
+      ) : null}
+      {!canSaveProgress ? (
+        <p className="text-sm text-muted-foreground">
+          This result is local-only until you sign in.
+        </p>
+      ) : null}
+    </div>
+  );
+}

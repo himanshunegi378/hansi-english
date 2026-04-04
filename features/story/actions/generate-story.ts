@@ -13,8 +13,11 @@ import {
   type SaveStoryInput,
   type StoryOnlyResponse,
 } from "../schemas";
+import { POINTS_PER_QUESTION } from "../const";
 import { getStorySystemPrompt, getQuestionSystemPrompt } from "../prompts/story-prompts";
+import { mapStoryProgress } from "../story-progress";
 import { type EnglishLevel, type PersistedStory, type StoryListItem } from "../types";
+import { getOptionalUserId } from "./story-attempt-helpers";
 
 /**
  * Ensures the active user is an admin before allowing protected story mutations.
@@ -186,6 +189,7 @@ export async function saveGeneratedStoryAction(input: SaveStoryInput): Promise<P
  * @returns A lightweight list representation for the saved stories screen.
  */
 export async function getSavedStoriesAction(): Promise<StoryListItem[]> {
+  const userId = await getOptionalUserId();
   const stories = await prisma.story.findMany({
     orderBy: {
       createdAt: "desc",
@@ -201,6 +205,21 @@ export async function getSavedStoriesAction(): Promise<StoryListItem[]> {
           questions: true,
         },
       },
+      ...(userId
+        ? {
+          progress: {
+            where: {
+              userId,
+            },
+            select: {
+              earnedPoints: true,
+              totalPoints: true,
+              completedAt: true,
+            },
+            take: 1,
+          },
+        }
+        : {}),
     },
   });
 
@@ -211,6 +230,10 @@ export async function getSavedStoriesAction(): Promise<StoryListItem[]> {
     level: story.level,
     createdAt: story.createdAt.toISOString(),
     questionCount: story._count.questions,
+    earnedPoints: story.progress?.[0]?.earnedPoints ?? 0,
+    totalPoints:
+      story.progress?.[0]?.totalPoints ?? story._count.questions * POINTS_PER_QUESTION,
+    isCompleted: Boolean(story.progress?.[0]?.completedAt),
   }));
 }
 
@@ -220,7 +243,8 @@ export async function getSavedStoriesAction(): Promise<StoryListItem[]> {
  * @returns The saved story with its questions, or null when missing.
  */
 export async function getSavedStoryByIdAction(storyId: string): Promise<PersistedStory | null> {
-  return prisma.story.findUnique({
+  const userId = await getOptionalUserId();
+  const story = await prisma.story.findUnique({
     where: {
       id: storyId,
     },
@@ -230,6 +254,44 @@ export async function getSavedStoryByIdAction(storyId: string): Promise<Persiste
           order: "asc",
         },
       },
+      ...(userId
+        ? {
+          progress: {
+            where: {
+              userId,
+            },
+            include: {
+              answers: {
+                orderBy: {
+                  question: {
+                    order: "asc",
+                  },
+                },
+                select: {
+                  questionId: true,
+                  valueType: true,
+                  selectedOption: true,
+                  textAnswer: true,
+                  booleanAnswer: true,
+                  isCorrect: true,
+                  pointsEarned: true,
+                  feedback: true,
+                },
+              },
+            },
+            take: 1,
+          },
+        }
+        : {}),
     },
   });
+
+  if (!story) {
+    return null;
+  }
+
+  return {
+    ...story,
+    viewerProgress: mapStoryProgress(story.progress?.[0] ?? null),
+  };
 }

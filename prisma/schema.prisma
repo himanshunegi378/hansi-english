@@ -26,6 +26,12 @@ enum QuestionType {
   ANALYSIS
 }
 
+enum AnswerValueType {
+  OPTION
+  TEXT
+  BOOLEAN
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -35,6 +41,7 @@ model User {
   password      String?
   role          Role      @default(USER)
   stories       Story[]
+  storyProgress StoryProgress[]
 }
 
 model Story {
@@ -48,6 +55,7 @@ model Story {
   createdById String
   createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
   questions   Question[]
+  progress    StoryProgress[]
 
   @@index([createdAt(sort: Desc)])
   @@index([createdById])
@@ -62,8 +70,47 @@ model Question {
   options       String[]
   correctAnswer String?
   order         Int
+  answers       StoryAnswer[]
 
   @@index([storyId, order])
+}
+
+model StoryProgress {
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storyId        String
+  story          Story         @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  earnedPoints   Int           @default(0)
+  totalPoints    Int           @default(0)
+  completedAt    DateTime?
+  lastAnsweredAt DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  answers        StoryAnswer[]
+
+  @@unique([userId, storyId])
+  @@index([storyId])
+}
+
+model StoryAnswer {
+  id             String          @id @default(cuid())
+  progressId     String
+  progress       StoryProgress   @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  valueType      AnswerValueType
+  selectedOption String?
+  textAnswer     String?
+  booleanAnswer  Boolean?
+  isCorrect      Boolean
+  pointsEarned   Int             @default(0)
+  feedback       String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([progressId, questionId])
+  @@index([questionId])
 }
 
 model WordMeaningCache {

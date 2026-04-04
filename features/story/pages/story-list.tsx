@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpenText, CalendarDays, CircleHelp, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpenText, CalendarDays, CheckCircle2, CircleHelp, Sparkles, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -89,6 +89,16 @@ function StoryListCard({ story, index }: StoryListCardProps) {
                 <CircleHelp />
                 <span>{story.questionCount} questions</span>
               </div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1">
+                <Trophy />
+                <span>{story.earnedPoints ?? 0}/{story.totalPoints ?? story.questionCount * 10} pts</span>
+              </div>
+              {story.isCompleted ? (
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-primary">
+                  <CheckCircle2 />
+                  <span>Completed</span>
+                </div>
+              ) : null}
             </div>
 
             <div className="inline-flex items-center gap-2 text-sm font-medium text-primary">

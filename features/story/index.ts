@@ -1,6 +1,7 @@
 export * from "./types";
 export * from "./schemas";
 export * from "./actions/generate-story";
+export * from "./actions/story-attempts";
 export * from "./hooks/use-story-actions";
 export * from "./pages/story-creator";
 export * from "./pages/story-preview";
