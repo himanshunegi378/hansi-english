@@ -13,6 +13,24 @@ const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+/**
+ * Type guard for Prisma unique constraint errors thrown from the admin creation flow.
+ * @param error The unknown error raised by Prisma.
+ * @returns Whether the error contains a Prisma-style error code.
+ */
+function hasPrismaErrorCode(error: unknown): error is { code: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as { code: unknown }).code === "string"
+  );
+}
+
+/**
+ * Creates or reports an admin account from CLI arguments.
+ * @returns A promise that resolves when the script has finished.
+ */
 async function createAdmin() {
   const args = process.argv.slice(2);
   
@@ -40,7 +58,7 @@ Example:
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    const admin = await (prisma as any).user.create({
+    const admin = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -49,8 +67,8 @@ Example:
       },
     });
     console.log(`Successfully created admin: ${admin.email}`);
-  } catch (error: any) {
-    if (error.code === 'P2002') {
+  } catch (error: unknown) {
+    if (hasPrismaErrorCode(error) && error.code === "P2002") {
       console.error(`Error: User with email ${email} already exists.`);
     } else {
       console.error("Error creating admin:", error);
