@@ -47,6 +47,7 @@ export function useTextMeaningSelection(): UseTextMeaningSelectionResult {
     const anchorNode = selection.anchorNode;
 
     if (
+      !range ||
       !rect ||
       !anchorNode ||
       !containerRef.current?.contains(anchorNode) ||

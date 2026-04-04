@@ -106,8 +106,10 @@ export function MeaningTooltip({
           onClose={onClose}
         />
         <div className="p-4 pt-0">
-          <DrawerClose render={<Button variant="outline" className="w-full" />}>
-            Close
+          <DrawerClose asChild>
+            <Button variant="outline" className="w-full">
+              Close
+            </Button>
           </DrawerClose>
         </div>
       </DrawerContent>

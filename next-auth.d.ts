@@ -13,7 +13,14 @@ declare module "next-auth" {
     } & DefaultSession["user"]
   }
 
-  interface User {
+  interface AdapterUser {
+    id: string
+    role: string
+  }
+}
+
+declare module "@auth/core/adapters" {
+  interface AdapterUser {
     id: string
     role: string
   }

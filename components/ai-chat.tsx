@@ -15,7 +15,8 @@ import { motion, AnimatePresence } from 'framer-motion';
  */
 export function AiChat() {
   const [input, setInput] = useState('');
-  const { messages, sendMessage, isLoading } = useChat();
+  const { messages, sendMessage, status } = useChat();
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
