@@ -1,0 +1,39 @@
+features/text-meaning/components/meaning-content.tsx
+  ca113faba00d935e 1-123
+features/text-meaning/components/meaning-tooltip.tsx
+  c337df4ecf91c4d3 99,145
+  ca113faba00d935e 3-4,6-21,24,42,46,60-68,73-76,79-80,82-84,88-98,100-125,127-133,135-144,146,155,158-166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "0e326e9331f2f426decab4b3d9b3ae7dec08f1e1",
+  "prompts": {
+    "c337df4ecf91c4d3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d56f4-a9ac-7372-9754-4245715dc712",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 48,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    },
+    "ca113faba00d935e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d56cb-f81b-7993-bc64-1b9f0c532964",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 276,
+      "total_deletions": 105,
+      "accepted_lines": 229,
+      "overriden_lines": 0
+    }
+  }
+}
