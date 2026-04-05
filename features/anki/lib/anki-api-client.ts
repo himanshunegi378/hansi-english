@@ -15,6 +15,72 @@ interface FetchOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
 }
 
+interface ApiRequestResult<T, TMeta extends Record<string, unknown>> {
+  data: T;
+  meta: TMeta;
+}
+
+/**
+ * Structured API error with HTTP metadata for client-side handling.
+ */
+export class AnkiApiError extends Error {
+  code: string;
+  status: number;
+
+  /**
+   * Creates a typed API error.
+   * @param status HTTP status code.
+   * @param code Stable server error code.
+   * @param message User-facing error message.
+   */
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.name = "AnkiApiError";
+    this.code = code;
+    this.status = status;
+  }
+}
+
+/**
+ * Parses a JSON API response and preserves typed metadata.
+ * @param response Fetch response object.
+ * @returns Parsed API payload with metadata.
+ */
+async function parseResponse<T, TMeta extends Record<string, unknown> = Record<string, never>>(
+  response: Response,
+): Promise<ApiRequestResult<T, TMeta>> {
+  if (response.status === 204) {
+    return {
+      data: undefined as T,
+      meta: {} as TMeta,
+    };
+  }
+
+  const payload = (await response.json()) as
+    | ApiErrorResponse
+    | ApiSuccessResponse<T>;
+
+  if (!response.ok) {
+    if ("error" in payload) {
+      throw new AnkiApiError(
+        response.status,
+        payload.error.code,
+        payload.error.message,
+      );
+    }
+
+    throw new AnkiApiError(response.status, "UNKNOWN_ERROR", "Request failed.");
+  }
+
+  return {
+    data: (payload as ApiSuccessResponse<T>).data,
+    meta:
+      "meta" in payload && payload.meta
+        ? (payload.meta as TMeta)
+        : ({} as TMeta),
+  };
+}
+
 /**
  * Executes an Anki API request and unwraps the standard response envelope.
  * @param path API path under `/api/v1`.
@@ -34,19 +100,33 @@ async function request<T>(path: string, options?: FetchOptions): Promise<T> {
     headers,
   });
 
-  if (response.status === 204) {
-    return undefined as T;
+  const payload = await parseResponse<T>(response);
+  return payload.data;
+}
+
+/**
+ * Executes an Anki API request and returns both data and metadata.
+ * @param path API path under `/api/v1`.
+ * @param options Fetch options and optional JSON body.
+ * @returns The typed `data` payload and `meta` from the API response.
+ */
+async function requestWithMeta<
+  T,
+  TMeta extends Record<string, unknown> = Record<string, never>,
+>(path: string, options?: FetchOptions): Promise<ApiRequestResult<T, TMeta>> {
+  const headers = new Headers(options?.headers);
+
+  if (options?.body !== undefined) {
+    headers.set("Content-Type", "application/json");
   }
 
-  const payload = (await response.json()) as
-    | ApiErrorResponse
-    | ApiSuccessResponse<T>;
+  const response = await fetch(path, {
+    ...options,
+    body: options?.body !== undefined ? JSON.stringify(options.body) : undefined,
+    headers,
+  });
 
-  if (!response.ok) {
-    throw new Error("error" in payload ? payload.error.message : "Request failed.");
-  }
-
-  return (payload as ApiSuccessResponse<T>).data;
+  return parseResponse<T, TMeta>(response);
 }
 
 /**
@@ -139,20 +219,18 @@ export function deleteCardRequest(cardId: string) {
  * @returns Due cards and total due metadata.
  */
 export async function getStudyQueueRequest(deckId: string) {
-  const response = await fetch(`/api/v1/decks/${deckId}/study`, {
+  const payload = await requestWithMeta<StudyCardDto[], { totalDue?: number }>(
+    `/api/v1/decks/${deckId}/study`,
+    {
     cache: "no-store",
-  });
-  const payload = (await response.json()) as
-    | ApiErrorResponse
-    | ApiSuccessResponse<StudyCardDto[]>;
-
-  if (!response.ok) {
-    throw new Error("error" in payload ? payload.error.message : "Request failed.");
-  }
+    },
+  );
 
   return {
-    data: (payload as ApiSuccessResponse<StudyCardDto[]>).data,
-    meta: "meta" in payload && payload.meta ? payload.meta : {},
+    data: payload.data,
+    meta: {
+      totalDue: payload.meta.totalDue ?? payload.data.length,
+    },
   };
 }
 

@@ -1,35 +1,53 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "sonner";
 import { reviewCardRequest } from "../lib/anki-api-client";
 import type { ReviewGrade } from "../backend/types";
+import { ankiQueryKeys } from "../query-key";
 import type { AnkiStudySessionCard, AnkiStudySessionState } from "../types/ui";
 
 /**
  * Manages answer reveal, review submission, and progress state for one study session.
+ * @param deckId Active deck id.
  * @param initialCards Due cards loaded for the session.
  * @returns The session state and interaction handlers.
  */
-export function useAnkiStudySession(initialCards: AnkiStudySessionCard[]) {
-  const [cards] = useState(initialCards);
-  const [currentIndex, setCurrentIndex] = useState(0);
+export function useAnkiStudySession(
+  deckId: string,
+  initialCards: AnkiStudySessionCard[],
+) {
+  const queryClient = useQueryClient();
+  const [completedCardIds, setCompletedCardIds] = useState<string[]>([]);
   const [isAnswerVisible, setIsAnswerVisible] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const reviewMutation = useMutation({
+    mutationFn: ({
+      cardId,
+      grade,
+    }: {
+      cardId: string;
+      grade: ReviewGrade;
+    }) => reviewCardRequest(cardId, { grade }),
+  });
 
-  const totalCount = cards.length;
-  const reviewedCount = Math.min(currentIndex, totalCount);
-  const remainingCount = Math.max(totalCount - reviewedCount, 0);
-  const activeCard = currentIndex < totalCount ? cards[currentIndex] : null;
+  const cards = initialCards.filter(
+    (card) => !completedCardIds.includes(card.id),
+  );
+  const totalCount = completedCardIds.length + cards.length;
+  const reviewedCount = completedCardIds.length;
+  const remainingCount = cards.length;
+  const activeCard = cards[0] ?? null;
   const phase: AnkiStudySessionState["phase"] =
     totalCount === 0 ? "empty" : activeCard ? "active" : "complete";
 
   const state: AnkiStudySessionState = {
     activeCard,
-    currentIndex,
+    currentIndex: reviewedCount,
     isAnswerVisible,
     phase,
-    progressValue: totalCount === 0 ? 0 : Math.round((reviewedCount / totalCount) * 100),
+    progressValue:
+      totalCount === 0 ? 0 : Math.round((reviewedCount / totalCount) * 100),
     remainingCount,
     reviewedCount,
     totalCount,
@@ -58,11 +76,22 @@ export function useAnkiStudySession(initialCards: AnkiStudySessionCard[]) {
       return;
     }
 
-    startTransition(async () => {
+    void (async () => {
       try {
-        await reviewCardRequest(activeCard.id, { grade });
+        await reviewMutation.mutateAsync({ cardId: activeCard.id, grade });
+        setCompletedCardIds((currentIds) => [...currentIds, activeCard.id]);
         setIsAnswerVisible(false);
-        setCurrentIndex((index) => index + 1);
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: ankiQueryKeys.study.queue(deckId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ankiQueryKeys.decks.detail(deckId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ankiQueryKeys.decks.list(),
+          }),
+        ]);
       } catch (error) {
         toast.error(
           error instanceof Error
@@ -70,12 +99,12 @@ export function useAnkiStudySession(initialCards: AnkiStudySessionCard[]) {
             : "Failed to save your review.",
         );
       }
-    });
+    })();
   }
 
   return {
     hideAnswer,
-    isPending,
+    isPending: reviewMutation.isPending,
     revealAnswer,
     state,
     submitGrade,

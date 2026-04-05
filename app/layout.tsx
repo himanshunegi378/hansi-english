@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { auth } from "@/auth";
 import { Navbar } from "@/components/navbar";
+import { QueryProvider } from "@/components/providers/query-provider";
 import SessionProvider from "@/components/providers/session-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -42,9 +43,11 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SessionProvider session={session}>
-          <Navbar session={session} />
-          <TooltipProvider>{children}</TooltipProvider>
-          <Toaster />
+          <QueryProvider>
+            <Navbar session={session} />
+            <TooltipProvider>{children}</TooltipProvider>
+            <Toaster />
+          </QueryProvider>
         </SessionProvider>
       </body>
     </html>

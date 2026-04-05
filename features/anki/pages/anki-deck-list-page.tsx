@@ -1,5 +1,7 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,28 +11,35 @@ import { CreateDeckDialog } from "../components/deck-list/create-deck-dialog";
 import { DeckCard } from "../components/deck-list/deck-card";
 import { DeckList } from "../components/deck-list/deck-list";
 import { useAnkiDeckActions } from "../hooks/use-anki-deck-actions";
-import type { AnkiDeckListItem } from "../types/ui";
-
-interface AnkiDeckListPageProps {
-  decks: AnkiDeckListItem[];
-}
+import { listDecksQueryOptions } from "../query-options";
 
 /**
  * Renders the Anki deck library screen.
- * @param props Deck list view model for the current user.
  * @returns The deck-list page composition.
  */
-export function AnkiDeckListPage({ decks }: AnkiDeckListPageProps) {
+export function AnkiDeckListPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { createDeck, isCreatingDeck } = useAnkiDeckActions();
+  const deckListQuery = useQuery({
+    ...listDecksQueryOptions(),
+    throwOnError: true,
+    select: (decks) =>
+      decks.map((deck) => ({
+        ...deck,
+        createdAtLabel: formatDistanceToNow(new Date(deck.createdAt), {
+          addSuffix: true,
+        }),
+        href: `/anki/${deck.id}`,
+        studyHref: `/anki/${deck.id}/study`,
+      })),
+  });
+  const decks = deckListQuery.data ?? [];
 
   return (
     <AnkiPageShell.Root>
       <AnkiPageShell.Header>
         <AnkiSectionHeading
           eyebrow="Spaced repetition"
-          title="Build a quiet review routine, one deck at a time."
-          description="Start with a small deck, return to it often, and let the due queue guide what deserves attention today."
           actions={(
             <Button className="rounded-full" onClick={() => setIsCreateOpen(true)}>
               <Plus data-icon="inline-start" />
@@ -42,7 +51,11 @@ export function AnkiDeckListPage({ decks }: AnkiDeckListPageProps) {
 
       <AnkiPageShell.Body>
         <DeckList.Root>
-          {decks.length === 0 ? (
+          {deckListQuery.isPending ? (
+            <div className="rounded-[2rem] border border-border/60 bg-card/90 p-6 text-sm text-muted-foreground">
+              Loading decks...
+            </div>
+          ) : decks.length === 0 ? (
             <DeckList.Empty />
           ) : (
             <DeckList.Grid>

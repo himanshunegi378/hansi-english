@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { format, formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { BookOpen, ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,28 +16,73 @@ import { DeleteDeckDialog } from "../components/confirm/delete-deck-dialog";
 import { DeckDetail } from "../components/deck-detail/deck-detail";
 import { useAnkiCardActions } from "../hooks/use-anki-card-actions";
 import { useAnkiDeckActions } from "../hooks/use-anki-deck-actions";
-import type { AnkiDeckCardViewModel, AnkiDeckDetailViewModel } from "../types/ui";
-import { useRouter } from "next/navigation";
+import type { DeckDetail as DeckDetailDto } from "../backend/types";
+import { deckDetailQueryOptions } from "../query-options";
+import type {
+  AnkiDeckCardViewModel,
+  AnkiDeckDetailViewModel,
+} from "../types/ui";
 
 interface AnkiDeckDetailPageProps {
-  deck: AnkiDeckDetailViewModel;
+  deckId: string;
+}
+
+/**
+ * Maps the raw deck detail payload into the page view model.
+ * @param deck Raw deck detail data.
+ * @returns Formatted deck view model.
+ */
+function toDeckViewModel(deck: DeckDetailDto): AnkiDeckDetailViewModel {
+  const now = new Date();
+
+  return {
+    ...deck,
+    cards: deck.cards.map((card) => ({
+      ...card,
+      nextReviewLabel: format(new Date(card.nextReview), "PPp"),
+    })),
+    createdAtLabel: formatDistanceToNow(new Date(deck.createdAt), {
+      addSuffix: true,
+    }),
+    dueCards: deck.cards.filter(
+      (card) => new Date(card.nextReview).getTime() <= now.getTime(),
+    ).length,
+    studyHref: `/anki/${deck.id}/study`,
+    totalCards: deck.cards.length,
+    updatedAtLabel: formatDistanceToNow(new Date(deck.updatedAt), {
+      addSuffix: true,
+    }),
+  };
 }
 
 /**
  * Renders the deck-management screen for one Anki deck.
- * @param props Deck detail view model.
+ * @param props Deck identifier to query.
  * @returns The deck-detail page composition.
  */
-export function AnkiDeckDetailPage({ deck }: AnkiDeckDetailPageProps) {
+export function AnkiDeckDetailPage({ deckId }: AnkiDeckDetailPageProps) {
   const router = useRouter();
-  const [cardToDelete, setCardToDelete] = useState<AnkiDeckCardViewModel | null>(null);
-  const [cardToEdit, setCardToEdit] = useState<AnkiDeckCardViewModel | null>(null);
+  const [cardToDelete, setCardToDelete] =
+    useState<AnkiDeckCardViewModel | null>(null);
+  const [cardToEdit, setCardToEdit] = useState<AnkiDeckCardViewModel | null>(
+    null,
+  );
   const [editorValues, setEditorValues] = useState({ back: "", front: "" });
   const [isDeleteDeckOpen, setIsDeleteDeckOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<{ back?: string; front?: string }>({});
-  const { createCard, deleteCard, deletingCardId, isSavingCard, updateCard } = useAnkiCardActions();
+  const [fieldErrors, setFieldErrors] = useState<{
+    back?: string;
+    front?: string;
+  }>({});
+  const { createCard, deleteCard, deletingCardId, isSavingCard, updateCard } =
+    useAnkiCardActions();
   const { deleteDeck, deletingDeckId } = useAnkiDeckActions();
+  const deckQuery = useQuery({
+    ...deckDetailQueryOptions(deckId),
+    throwOnError: true,
+    select: toDeckViewModel,
+  });
+  const deck = deckQuery.data;
 
   function openCreateCard() {
     setCardToEdit(null);
@@ -55,17 +103,19 @@ export function AnkiDeckDetailPage({ deck }: AnkiDeckDetailPageProps) {
 
     const nextErrors = {
       back: editorValues.back.trim() ? undefined : "Card back cannot be empty.",
-      front: editorValues.front.trim() ? undefined : "Card front cannot be empty.",
+      front: editorValues.front.trim()
+        ? undefined
+        : "Card front cannot be empty.",
     };
 
     setFieldErrors(nextErrors);
 
-    if (nextErrors.front || nextErrors.back) {
+    if (nextErrors.front || nextErrors.back || !deck) {
       return;
     }
 
     const success = cardToEdit
-      ? await updateCard(cardToEdit.id, editorValues)
+      ? await updateCard(cardToEdit.id, deck.id, editorValues)
       : await createCard(deck.id, editorValues);
 
     if (success) {
@@ -74,22 +124,37 @@ export function AnkiDeckDetailPage({ deck }: AnkiDeckDetailPageProps) {
   }
 
   async function handleDeleteDeck() {
+    if (!deck) {
+      return;
+    }
+
     const success = await deleteDeck(deck.id);
     if (success) {
       router.push("/anki");
-      router.refresh();
     }
   }
 
   async function handleDeleteCard() {
-    if (!cardToDelete) {
+    if (!cardToDelete || !deck) {
       return;
     }
 
-    const success = await deleteCard(cardToDelete.id);
+    const success = await deleteCard(cardToDelete.id, deck.id);
     if (success) {
       setCardToDelete(null);
     }
+  }
+
+  if (!deck) {
+    return (
+      <AnkiPageShell.Root>
+        <AnkiPageShell.Body>
+          <div className="rounded-[2rem] border border-border/60 bg-card/90 p-6 text-sm text-muted-foreground">
+            Loading deck...
+          </div>
+        </AnkiPageShell.Body>
+      </AnkiPageShell.Root>
+    );
   }
 
   return (
@@ -97,8 +162,6 @@ export function AnkiDeckDetailPage({ deck }: AnkiDeckDetailPageProps) {
       <AnkiPageShell.Header>
         <AnkiSectionHeading
           eyebrow="Deck workspace"
-          title="Shape the deck, then let the study queue do the pacing."
-          description="Add only the cards this deck truly needs, keep each prompt clear, and return to the due queue instead of cramming all at once."
           actions={(
             <AnkiPageShell.Actions>
               <Link href="/anki" className={cn(buttonVariants({ variant: "outline" }), "rounded-full px-4")}>
@@ -121,11 +184,19 @@ export function AnkiDeckDetailPage({ deck }: AnkiDeckDetailPageProps) {
             description={deck.description}
             actions={(
               <>
-                <Button variant="outline" className="rounded-full" onClick={openCreateCard}>
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={openCreateCard}
+                >
                   <Plus data-icon="inline-start" />
                   Add card
                 </Button>
-                <Button variant="outline" className="rounded-full" onClick={() => setIsDeleteDeckOpen(true)}>
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => setIsDeleteDeckOpen(true)}
+                >
                   <Trash2 data-icon="inline-start" />
                   Delete deck
                 </Button>
@@ -158,8 +229,12 @@ export function AnkiDeckDetailPage({ deck }: AnkiDeckDetailPageProps) {
               front={editorValues.front}
               back={editorValues.back}
               errors={fieldErrors}
-              onFrontChange={(front) => setEditorValues((value) => ({ ...value, front }))}
-              onBackChange={(back) => setEditorValues((value) => ({ ...value, back }))}
+              onFrontChange={(front) =>
+                setEditorValues((value) => ({ ...value, front }))
+              }
+              onBackChange={(back) =>
+                setEditorValues((value) => ({ ...value, back }))
+              }
             />
             <CardEditorDialog.Actions
               isPending={isSavingCard}

@@ -1,7 +1,6 @@
 "use client";
 
-import { startTransition, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   createCardRequest,
@@ -9,15 +8,57 @@ import {
   updateCardRequest,
 } from "../lib/anki-api-client";
 import type { CreateCardInput } from "../backend/types";
+import { ankiQueryKeys } from "../query-key";
+
+interface CreateCardVariables {
+  deckId: string;
+  input: CreateCardInput;
+}
+
+interface UpdateCardVariables extends CreateCardVariables {
+  cardId: string;
+}
+
+interface DeleteCardVariables {
+  cardId: string;
+  deckId: string;
+}
 
 /**
  * Manages client-side card create, update, and delete actions.
  * @returns Action handlers plus pending states.
  */
 export function useAnkiCardActions() {
-  const router = useRouter();
-  const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
-  const [isSavingCard, setIsSavingCard] = useState(false);
+  const queryClient = useQueryClient();
+  const createCardMutation = useMutation({
+    mutationFn: ({ deckId, input }: CreateCardVariables) =>
+      createCardRequest(deckId, input),
+  });
+  const updateCardMutation = useMutation({
+    mutationFn: ({ cardId, input }: UpdateCardVariables) =>
+      updateCardRequest(cardId, input),
+  });
+  const deleteCardMutation = useMutation({
+    mutationFn: ({ cardId }: DeleteCardVariables) => deleteCardRequest(cardId),
+  });
+
+  /**
+   * Refreshes every query affected by a card change.
+   * @param deckId Parent deck id.
+   */
+  async function invalidateDeckQueries(deckId: string) {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ankiQueryKeys.decks.detail(deckId),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ankiQueryKeys.study.queue(deckId),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ankiQueryKeys.decks.list(),
+      }),
+    ]);
+  }
 
   /**
    * Creates a card in the provided deck.
@@ -29,82 +70,69 @@ export function useAnkiCardActions() {
     deckId: string,
     input: CreateCardInput,
   ): Promise<boolean> {
-    setIsSavingCard(true);
-
     try {
-      await createCardRequest(deckId, input);
+      await createCardMutation.mutateAsync({ deckId, input });
+      await invalidateDeckQueries(deckId);
       toast.success("Card added.");
-      startTransition(() => {
-        router.refresh();
-      });
       return true;
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to add card.");
       return false;
-    } finally {
-      setIsSavingCard(false);
     }
   }
 
   /**
    * Updates an existing card.
    * @param cardId Card id to update.
+   * @param deckId Parent deck id.
    * @param input Card values.
    * @returns Whether the request completed successfully.
    */
   async function updateCard(
     cardId: string,
+    deckId: string,
     input: CreateCardInput,
   ): Promise<boolean> {
-    setIsSavingCard(true);
-
     try {
-      await updateCardRequest(cardId, input);
+      await updateCardMutation.mutateAsync({ cardId, deckId, input });
+      await invalidateDeckQueries(deckId);
       toast.success("Card updated.");
-      startTransition(() => {
-        router.refresh();
-      });
       return true;
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to update card.",
       );
       return false;
-    } finally {
-      setIsSavingCard(false);
     }
   }
 
   /**
    * Deletes a card.
    * @param cardId Card id to delete.
+   * @param deckId Parent deck id.
    * @returns Whether the request completed successfully.
    */
-  async function deleteCard(cardId: string): Promise<boolean> {
-    setDeletingCardId(cardId);
-
+  async function deleteCard(cardId: string, deckId: string): Promise<boolean> {
     try {
-      await deleteCardRequest(cardId);
+      await deleteCardMutation.mutateAsync({ cardId, deckId });
+      await invalidateDeckQueries(deckId);
       toast.success("Card deleted.");
-      startTransition(() => {
-        router.refresh();
-      });
       return true;
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to delete card.",
       );
       return false;
-    } finally {
-      setDeletingCardId(null);
     }
   }
 
   return {
     createCard,
     deleteCard,
-    deletingCardId,
-    isSavingCard,
+    deletingCardId: deleteCardMutation.isPending
+      ? deleteCardMutation.variables?.cardId ?? null
+      : null,
+    isSavingCard: createCardMutation.isPending || updateCardMutation.isPending,
     updateCard,
   };
 }

@@ -1,10 +1,18 @@
 "use client"
 
 import Link from "next/link";
-import { BookOpenText, Layers3, Library, LogIn, PenSquare } from "lucide-react";
+import { BookOpenText, Layers3, Library, LogIn, Menu, PenSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button-variants";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { UserNav } from "@/components/user-nav";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { type Session } from "next-auth";
@@ -107,6 +115,63 @@ export function Navbar({ session }: NavbarProps) {
               <LogIn data-icon="inline-start" /> Login
             </Link>
           )}
+
+          <Sheet>
+            <SheetTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full md:hidden"
+                  aria-label="Toggle Menu"
+                />
+              }
+            >
+              <Menu className="size-6" />
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] border-l border-border/70 bg-background/95 backdrop-blur-xl sm:w-[350px]">
+              <SheetHeader className="pb-6">
+                <SheetTitle className="flex items-center gap-3 text-left">
+                  <div className="flex size-10 items-center justify-center rounded-full border border-border/70 bg-secondary text-secondary-foreground">
+                    <BookOpenText className="size-5" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-heading text-xl leading-none tracking-[-0.04em]">
+                      Hansi English
+                    </span>
+                    <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+                      Story-based learning
+                    </span>
+                  </div>
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-2">
+                {visibleNavigationItems.map(({ href, icon: Icon, label }) => (
+                  <SheetClose
+                    key={href}
+                    render={
+                      <Link
+                        href={href}
+                        className="group flex items-center gap-4 rounded-2xl px-4 py-4 text-base font-medium text-muted-foreground transition-all hover:bg-secondary hover:text-foreground active:scale-[0.98]"
+                      />
+                    }
+                  >
+                    <div className="flex size-10 items-center justify-center rounded-xl border border-border/50 bg-background transition-colors group-hover:border-border group-hover:bg-accent/50">
+                      {Icon ? <Icon className="size-5" /> : <Library className="size-5" />}
+                    </div>
+                    <span>{label}</span>
+                  </SheetClose>
+                ))}
+              </nav>
+              <div className="absolute bottom-10 left-6 right-6">
+                <div className="rounded-2xl border border-border/50 bg-secondary/30 p-6">
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    Master English through captivating stories and spaced repetition.
+                  </p>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </motion.header>

@@ -1,11 +1,18 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { CheckCircle2, Eye, EyeOff, RotateCcw, Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CheckCircle2, RotateCcw, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import type { ReviewGrade } from "../../backend/types";
 import type { AnkiStudySessionState } from "../../types/ui";
 import { AnkiEmptyState } from "../shared/anki-empty-state";
@@ -28,55 +35,23 @@ function ProgressPanel({ state }: { state: AnkiStudySessionState }) {
   );
 }
 
-function Prompt({ prompt }: { prompt: string }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24 }}>
-      <Card className="overflow-hidden rounded-[2rem] border-border/70 bg-card/90 shadow-sm">
-        <CardHeader className="gap-3 border-b border-border/60 bg-secondary/25 p-5 sm:p-6">
-          <CardTitle className="font-heading text-3xl tracking-tight">Front of card</CardTitle>
-          <p className="text-sm leading-6 text-muted-foreground">
-            Pause before revealing the answer and try to retrieve it from memory.
-          </p>
-        </CardHeader>
-        <CardContent className="p-6 sm:p-8">
-          <p className="text-lg leading-8 text-foreground sm:text-2xl sm:leading-10">{prompt}</p>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
-function Answer({ answer, visible }: { answer: string; visible: boolean }) {
-  if (!visible) {
-    return null;
-  }
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22 }}>
-      <Card className="rounded-[2rem] border-border/70 bg-card/90 shadow-sm">
-        <CardHeader className="gap-3 border-b border-border/60 bg-secondary/20 p-5 sm:p-6">
-          <CardTitle className="font-heading text-2xl tracking-tight">Back of card</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6 sm:p-8">
-          <p className="text-base leading-7 text-foreground sm:text-lg sm:leading-8">{answer}</p>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
-function Grades({
-  isAnswerVisible,
+/**
+ * Presents a study prompt and its revealed answer with separate visual states.
+ */
+function Flashcard({
+  front,
+  back,
+  isRevealed,
   isPending,
-  onHideAnswer,
-  onRevealAnswer,
-  onSubmitGrade,
+  onReveal,
+  onGrade,
 }: {
-  isAnswerVisible: boolean;
+  front: string;
+  back: string;
+  isRevealed: boolean;
   isPending: boolean;
-  onHideAnswer: () => void;
-  onRevealAnswer: () => void;
-  onSubmitGrade: (grade: ReviewGrade) => void;
+  onReveal: () => void;
+  onGrade: (grade: ReviewGrade) => void;
 }) {
   const grades: Array<{ grade: ReviewGrade; label: string }> = [
     { grade: 1, label: "Again" },
@@ -86,34 +61,97 @@ function Grades({
   ];
 
   return (
-    <div className="flex flex-col gap-3 rounded-[2rem] border border-border/60 bg-card/90 p-5 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Badge variant="outline" className="rounded-full bg-background/80 px-3 py-1">
-          <Zap data-icon="inline-start" />
-          Grade after you reveal the answer
-        </Badge>
-        <Button variant="outline" className="rounded-full" onClick={isAnswerVisible ? onHideAnswer : onRevealAnswer}>
-          {isAnswerVisible ? <EyeOff data-icon="inline-start" /> : <Eye data-icon="inline-start" />}
-          {isAnswerVisible ? "Hide answer" : "Reveal answer"}
-        </Button>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-4">
-        {grades.map((item) => (
-          <Button
-            key={item.grade}
-            variant={item.grade >= 3 ? "default" : "outline"}
-            className="rounded-full"
-            disabled={!isAnswerVisible || isPending}
-            onClick={() => onSubmitGrade(item.grade)}
-          >
-            {isPending && item.grade === 1 ? <RotateCcw data-icon="inline-start" /> : null}
-            {item.label}
-          </Button>
-        ))}
+    <div className="relative h-110 w-full transform-gpu sm:h-100">
+      <div
+        className={cn(
+          "relative h-full w-full transition-all duration-700 transform-3d",
+          isRevealed && "transform-[rotateY(180deg)]",
+        )}
+      >
+        {/* Front Face */}
+        <div className="backface-hidden absolute inset-0 translate-z-0 antialiased">
+          <Card className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border/70 bg-secondary/30 shadow-sm ring-1 ring-border/40 transition-colors hover:border-primary/15">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-background/70 via-secondary/40 to-transparent" />
+            <CardHeader className="relative gap-2 border-b border-border/60 bg-background/60 p-5 backdrop-blur-sm">
+              <Badge
+                variant="outline"
+                className="w-fit rounded-full bg-background/80 text-muted-foreground"
+              >
+                Prompt Side
+              </Badge>
+              <CardTitle className="font-heading text-xl tracking-tight sm:text-2xl">
+                Question
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Recall the answer from memory before you reveal.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-1 items-center justify-center p-6 text-center">
+              <p className="max-w-2xl text-lg font-medium text-foreground sm:text-2xl">
+                {front}
+              </p>
+            </CardContent>
+            <CardFooter className="border-border/60 bg-background/75 p-4">
+              <Button
+                className="w-full rounded-full"
+                size="lg"
+                onClick={onReveal}
+              >
+                Reveal Answer
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+
+        {/* Back Face */}
+        <div className="backface-hidden absolute inset-0 translate-z-0 antialiased transform-[rotateY(180deg)]">
+          <Card className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-primary/15 bg-primary/6 shadow-sm shadow-primary/8 ring-1 ring-primary/10">
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-background/50" />
+            <CardHeader className="relative gap-1 border-b border-primary/10 bg-background/70 p-5 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-heading text-xl tracking-tight">
+                  Answer
+                </CardTitle>
+                <Badge
+                  variant="outline"
+                  className="rounded-full border-primary/20 bg-background/85"
+                >
+                  <Zap className="mr-1 h-3 w-3" />
+                  Grade Session
+                </Badge>
+              </div>
+              <CardDescription className="text-xs">
+                Check your recall, then choose how it felt.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="relative flex flex-1 items-center justify-center p-6 text-center">
+              <p className="max-w-2xl text-base leading-7 text-foreground sm:text-lg">
+                {back}
+              </p>
+            </CardContent>
+            <CardFooter className="grid grid-cols-2 gap-2 border-primary/10 bg-background/80 p-4 sm:grid-cols-4">
+              {grades.map((item) => (
+                <Button
+                  key={item.grade}
+                  variant={item.grade >= 3 ? "default" : "outline"}
+                  className="rounded-full"
+                  disabled={isPending}
+                  onClick={() => onGrade(item.grade)}
+                >
+                  {isPending && item.grade === 1 ? (
+                    <RotateCcw className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  {item.label}
+                </Button>
+              ))}
+            </CardFooter>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
+
 
 function Empty() {
   return (
@@ -143,11 +181,9 @@ function Complete({ deckTitle }: { deckTitle: string }) {
  * Compound interaction shell for deck study sessions.
  */
 export const StudySession = {
-  Answer,
   Complete,
   Empty,
-  Grades,
+  Flashcard,
   Progress: ProgressPanel,
-  Prompt,
   Root,
 };

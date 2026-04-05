@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { formatDistanceToNow } from "date-fns";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { listDecks } from "@/features/anki/backend/service";
 import { AnkiDeckListPage } from "@/features/anki/pages/anki-deck-list-page";
 
 export const metadata: Metadata = {
@@ -21,18 +19,5 @@ export default async function AnkiPage() {
     redirect("/login");
   }
 
-  const decks = await listDecks();
-
-  return (
-    <AnkiDeckListPage
-      decks={decks.map((deck) => ({
-        ...deck,
-        createdAtLabel: formatDistanceToNow(new Date(deck.createdAt), {
-          addSuffix: true,
-        }),
-        href: `/anki/${deck.id}`,
-        studyHref: `/anki/${deck.id}/study`,
-      }))}
-    />
-  );
+  return <AnkiDeckListPage />;
 }

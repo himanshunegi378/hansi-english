@@ -75,7 +75,7 @@ function Stats({
   totalCards: number;
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3 grid-cols-2">
       <div className="rounded-lg border border-border/60 bg-background/80 p-4">
         <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
           Due now

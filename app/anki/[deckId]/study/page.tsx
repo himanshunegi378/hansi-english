@@ -1,7 +1,5 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AnkiError } from "@/features/anki/backend/errors";
-import { getDeck, getStudyQueue } from "@/features/anki/backend/service";
 import { AnkiStudyPage } from "@/features/anki/pages/anki-study-page";
 
 interface AnkiStudyRouteProps {
@@ -23,26 +21,6 @@ export default async function AnkiStudyRoute({ params }: AnkiStudyRouteProps) {
   }
 
   const { deckId } = await params;
-  let deck;
-  let queue;
 
-  try {
-    [deck, queue] = await Promise.all([getDeck(deckId), getStudyQueue(deckId)]);
-  } catch (error) {
-    if (error instanceof AnkiError && error.status === 404) {
-      notFound();
-    }
-
-    throw error;
-  }
-
-  return (
-    <AnkiStudyPage
-      deckTitle={deck.name}
-      cards={queue.data.map((card) => ({
-        ...card,
-        deckTitle: deck.name,
-      }))}
-    />
-  );
+  return <AnkiStudyPage deckId={deckId} />;
 }
