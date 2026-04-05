@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // You can change this to "sqlite" or "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------
+// User Management
+// ------------------------------------------------------
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  decks     Deck[]
+  reviews   ReviewLog[]
+}
+
+// ------------------------------------------------------
+// Deck Management
+// ------------------------------------------------------
+model Deck {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards       Card[]
+
+  @@index([userId])
+}
+
+// ------------------------------------------------------
+// Card & Spaced Repetition State
+// ------------------------------------------------------
+model Card {
+  id          String   @id @default(cuid())
+  front       String   @db.Text // Using Text for potentially long content
+  back        String   @db.Text
+  
+  // SM-2 Algorithm State
+  interval    Float    @default(0)   // Number of days until next review
+  ease        Float    @default(2.5) // Multiplier for interval growth
+  nextReview  DateTime @default(now()) // Exact timestamp for when card is due
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  deckId      String
+  deck        Deck         @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  reviewLogs  ReviewLog[]
+
+  // Indexing nextReview allows lightning-fast queries for "due cards"
+  @@index([deckId])
+  @@index([nextReview]) 
+}
+
+// ------------------------------------------------------
+// Analytics & History
+// ------------------------------------------------------
+model ReviewLog {
+  id          String   @id @default(cuid())
+  grade       Int      // 1 (Again), 2 (Hard), 3 (Good), 4 (Easy)
+  reviewedAt  DateTime @default(now())
+  
+  // Snapshot of what the card's stats became AFTER this review
+  newInterval Float
+  newEase     Float
+
+  // Relations
+  cardId      String
+  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
+  @@index([userId])
+}

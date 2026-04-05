@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link";
-import { BookOpenText, Library, LogIn, PenSquare } from "lucide-react";
+import { BookOpenText, Layers3, Library, LogIn, PenSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { UserNav } from "@/components/user-nav";
@@ -22,6 +22,7 @@ const navigationItems: NavigationItem[] = [
   { href: "/", label: "Home" },
   { href: "/story", label: "Story Studio", icon: PenSquare, requiresStoryCreator: true },
   { href: "/stories", label: "Library", icon: Library },
+  { href: "/anki", label: "Anki", icon: Layers3 },
 ];
 
 interface NavbarProps {
