@@ -8,10 +8,19 @@ import { UserNav } from "@/components/user-nav";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { type Session } from "next-auth";
+import { roles } from "@/lib/auth/roles";
+import { defineAbilitiesFor, permissions } from "@/lib/casl/ability";
 
-const navigationItems = [
+type NavigationItem = {
+  href: string;
+  label: string;
+  icon?: typeof PenSquare;
+  requiresStoryCreator?: boolean;
+};
+
+const navigationItems: NavigationItem[] = [
   { href: "/", label: "Home" },
-  { href: "/story", label: "Story Studio", icon: PenSquare },
+  { href: "/story", label: "Story Studio", icon: PenSquare, requiresStoryCreator: true },
   { href: "/stories", label: "Library", icon: Library },
 ];
 
@@ -20,9 +29,27 @@ interface NavbarProps {
 }
 
 /**
+ * Returns only the navigation items the current user is allowed to see.
+ */
+function getVisibleNavigationItems(session: Session | null): NavigationItem[] {
+  const role = session?.user?.role ?? roles.user;
+  const ability = defineAbilitiesFor(role);
+
+  return navigationItems.filter((item) => {
+    if (!item.requiresStoryCreator) {
+      return true;
+    }
+
+    return ability.can(permissions.story.creator.action, permissions.story.creator.subject);
+  });
+}
+
+/**
  * Global navigation header for the application.
  */
 export function Navbar({ session }: NavbarProps) {
+  const visibleNavigationItems = getVisibleNavigationItems(session);
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -47,7 +74,7 @@ export function Navbar({ session }: NavbarProps) {
           </Link>
 
           <nav className="hidden items-center gap-2 rounded-full border border-border/70 bg-background/70 p-1 md:flex">
-            {navigationItems.map(({ href, icon: Icon, label }) => (
+            {visibleNavigationItems.map(({ href, icon: Icon, label }) => (
               <Link
                 key={href}
                 href={href}

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import { roles } from "@/lib/auth/roles";
 import {
   getSavedStoryByIdAction,
   StoryCreator,
@@ -23,7 +24,7 @@ interface StoryPageProps {
  */
 export default async function StoryPage({ searchParams }: StoryPageProps) {
   const [session, { storyId }] = await Promise.all([auth(), searchParams]);
-  const isAdmin = session?.user?.role === "ADMIN";
+  const isAdmin = session?.user?.role === roles.admin;
 
   if (storyId) {
     const story = await getSavedStoryByIdAction(storyId);

@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
+import { type AppRole } from "@/lib/auth/roles"
 
 // Define user type locally to avoid generated client resolution issues in auth context
 interface DbUser {
@@ -10,7 +11,7 @@ interface DbUser {
   name: string | null
   email: string | null
   password?: string | null
-  role: string
+  role: AppRole
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -70,4 +71,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login",
   },
 })
-

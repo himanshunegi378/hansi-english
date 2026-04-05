@@ -1,4 +1,5 @@
 import { type DefaultSession } from "next-auth"
+import { type AppRole } from "@/lib/auth/roles"
 
 declare module "next-auth" {
   /**
@@ -9,20 +10,20 @@ declare module "next-auth" {
       /** The user's id in the system. */
       id: string
       /** The user's role in the system. */
-      role: string
+      role: AppRole
     } & DefaultSession["user"]
   }
 
   interface AdapterUser {
     id: string
-    role: string
+    role: AppRole
   }
 }
 
 declare module "@auth/core/adapters" {
   interface AdapterUser {
     id: string
-    role: string
+    role: AppRole
   }
 }
 
@@ -32,6 +33,6 @@ declare module "next-auth/jwt" {
     /** The user's id */
     id?: string
     /** The user's role */
-    role?: string
+    role?: AppRole
   }
 }

@@ -1,6 +1,7 @@
 import { auth } from "./auth"
 import { NextResponse } from "next/server"
-import { Actions, defineAbilitiesFor, Subjects } from "@/lib/casl/ability"
+import { roles } from "@/lib/auth/roles"
+import { Actions, defineAbilitiesFor, permissions, Subjects } from "@/lib/casl/ability"
 
 type RouteGuard = {
   pattern: string
@@ -10,8 +11,8 @@ type RouteGuard = {
 
 // Add a row here for each route that requires a specific ability.
 const PROTECTED_ROUTES: RouteGuard[] = [
-  { pattern: "/story", action: "create", subject: "StoryCreator" },
-  { pattern: "/admin", action: "manage", subject: "AdminPanel" },
+  { pattern: "/story", action: permissions.story.creator.action, subject: permissions.story.creator.subject },
+  { pattern: "/admin", action: permissions.admin.panel.action, subject: permissions.admin.panel.subject },
 ]
 
 export const proxy = auth((req) => {
@@ -34,7 +35,7 @@ export const proxy = auth((req) => {
     return NextResponse.redirect(new URL("/login", req.url))
   }
 
-  const role = req.auth?.user?.role ?? "USER"
+  const role = req.auth?.user?.role ?? roles.user
   const ability = defineAbilitiesFor(role)
 
   for (const guard of PROTECTED_ROUTES) {

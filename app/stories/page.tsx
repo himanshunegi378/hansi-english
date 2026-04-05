@@ -4,6 +4,7 @@ import { Sparkles } from "lucide-react";
 import { auth } from "@/auth";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { getSavedStoriesAction, StoryList } from "@/features/story";
+import { roles } from "@/lib/auth/roles";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
  */
 export default async function StoriesPage() {
   const [session, stories] = await Promise.all([auth(), getSavedStoriesAction()]);
-  const canCreateStories = session?.user?.role === "ADMIN";
+  const canCreateStories = session?.user?.role === roles.admin;
 
   return (
     <main className="relative min-h-screen px-5 py-8 sm:px-8 sm:py-12 lg:px-10">

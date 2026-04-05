@@ -1,12 +1,13 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { roles } from "@/lib/auth/roles"
 
 export default async function AdminPage() {
   const session = await auth()
 
   // Protection Layer: Only ADMIN role can access this page
-  if (session?.user?.role !== "ADMIN") {
+  if (session?.user?.role !== roles.admin) {
     redirect("/")
   }
 
