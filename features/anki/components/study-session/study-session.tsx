@@ -54,7 +54,7 @@ function Flashcard({
   onGrade: (grade: ReviewGrade) => void;
 }) {
   const grades: Array<{ grade: ReviewGrade; label: string }> = [
-    { grade: 1, label: "Again" },
+    // { grade: 1, label: "Again" },
     { grade: 2, label: "Hard" },
     { grade: 3, label: "Good" },
     { grade: 4, label: "Easy" },
