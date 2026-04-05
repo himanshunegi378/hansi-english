@@ -61,6 +61,7 @@ export function StoryPreview({ story }: StoryPreviewProps) {
             type: q.type,
             options: q.options,
             correctAnswer: q.correctAnswer ?? undefined,
+            valueType: q.valueType,
           }))}
         />
       )}

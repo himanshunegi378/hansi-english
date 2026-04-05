@@ -15,14 +15,23 @@ import {
 } from "../ui/question";
 
 interface QuizQuestionPanelProps {
+  /** Whether the viewer can persist their progress to a profile. */
   canSaveProgress: boolean;
+  /** The local response being typed or selected before submission. */
   draftAnswer?: StoryAnswerValue;
+  /** Whether an answer is currently being submitted or graded by AI. */
   isPending: boolean;
+  /** Callback to advance to the next question in the sequence. */
   onNext: () => void;
+  /** Updates the draft response for a specific question ID. */
   onChange: (id: string, value: string | boolean) => void;
+  /** Validates and commits the current draft response. */
   onSubmit: () => void;
+  /** The content and options for the active quiz item. */
   question: GeneratedQuestion;
+  /** The results of a previous submission, including grading and feedback. */
   savedAnswer?: StoryQuestionAnswer;
+  /** Whether to display the navigation control to the next item. */
   showNextAction: boolean;
 }
 

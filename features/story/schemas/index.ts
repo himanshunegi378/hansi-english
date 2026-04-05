@@ -19,6 +19,7 @@ export const questionSchema = z.object({
   type: z.enum(["COMPREHENSION", "VOCABULARY", "INFERENCE", "PERSONAL_RESPONSE", "ANALYSIS"]).describe("The category of the question based on generation rules"),
   options: z.array(z.string()).optional().describe("Multiple choice options if applicable"),
   correctAnswer: z.string().optional().describe("The correct answer for the question"),
+  valueType: z.enum(["OPTION", "TEXT", "BOOLEAN"]).describe("The intent of the question (Multiple Choice, Open-ended, etc.)"),
 });
 
 export type QuestionSchemaType = z.infer<typeof questionSchema>;

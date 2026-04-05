@@ -9,7 +9,6 @@ import type {
   StoryProgress,
   StoryQuestionAnswer,
   StoryQuizSharedProps,
-  AnswerValueType,
 } from "../types";
 
 export type UseStoryQuizOptions = StoryQuizSharedProps;
@@ -48,12 +47,7 @@ export function useStoryQuiz({
     const question = questions.find((q) => q.id === questionId);
     if (!question) return;
 
-    const isObjective = (question.options?.length ?? 0) > 0;
-    const valueType: AnswerValueType = isObjective
-      ? "OPTION"
-      : typeof value === "boolean"
-      ? "BOOLEAN"
-      : "TEXT";
+    const { valueType } = question;
 
     setDraftAnswers((current) => ({
       ...current,

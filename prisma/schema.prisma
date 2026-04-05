@@ -70,6 +70,7 @@ model Question {
   options       String[]
   correctAnswer String?
   order         Int
+  valueType     AnswerValueType
   answers       StoryAnswer[]
 
   @@index([storyId, order])

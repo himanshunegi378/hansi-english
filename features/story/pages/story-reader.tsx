@@ -80,10 +80,7 @@ export function StoryReader({
           canSaveProgress={canSaveProgress}
           initialProgress={story.viewerProgress}
           questions={story.questions.map((question) => ({
-            id: question.id,
-            text: question.text,
-            type: question.type,
-            options: question.options,
+            ...question,
             correctAnswer: question.correctAnswer ?? undefined,
           }))}
           storyId={story.id}

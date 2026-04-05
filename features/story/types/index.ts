@@ -38,6 +38,7 @@ export interface GeneratedQuestion {
   type: QuestionType;
   options?: string[];
   correctAnswer?: string;
+  valueType: AnswerValueType;
 }
 
 export interface PersistedQuestion {
@@ -47,6 +48,7 @@ export interface PersistedQuestion {
   options: string[];
   correctAnswer: string | null;
   order: number;
+  valueType: AnswerValueType;
 }
 
 export interface GeneratedStoryDraft {

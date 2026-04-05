@@ -142,11 +142,12 @@ export function useSaveStory({
         title: story.title,
         content: story.content,
         level: story.level,
-        questions: questions.map(({ correctAnswer, options, text, type }) => ({
+        questions: questions.map(({ correctAnswer, options, text, type, valueType }) => ({
           text,
           type,
           options,
           correctAnswer,
+          valueType,
         })),
       });
 

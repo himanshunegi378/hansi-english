@@ -118,7 +118,16 @@ export async function generateStoryQuestionsAction(storyContent: string, level: 
     }
 
     try {
-      const questions = JSON.parse(questionsMatch[1].trim());
+      const rawQuestions = JSON.parse(questionsMatch[1].trim());
+      const questionsData = Array.isArray(rawQuestions) 
+        ? rawQuestions 
+        : (rawQuestions as Record<string, unknown>)?.questions;
+
+      const questions = (Array.isArray(questionsData) ? questionsData : []).map((q: Record<string, unknown>) => ({
+        ...q,
+        valueType: (Array.isArray(q.options) && q.options.length > 0) ? "OPTION" : "TEXT"
+      }));
+
       // Validate the parsed structure
       return questionsOnlySchema.parse({ questions });
     } catch (parseError) {
@@ -162,6 +171,7 @@ export async function saveGeneratedStoryAction(input: SaveStoryInput): Promise<P
               options: question.options ?? [],
               correctAnswer: question.correctAnswer ?? null,
               order: index,
+              valueType: question.valueType,
             })),
           },
         },
