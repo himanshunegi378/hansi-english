@@ -1,0 +1,23 @@
+prisma/schema.prisma
+  dce00308319946d9 45-46,130-173
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "9b9ec26e17da5dab989215efd64378b7ee873a28",
+  "prompts": {
+    "dce00308319946d9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d5dd4-4ad8-7502-b69a-c7efcde30cb9",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 47,
+      "total_deletions": 0,
+      "accepted_lines": 47,
+      "overriden_lines": 0
+    }
+  }
+}
