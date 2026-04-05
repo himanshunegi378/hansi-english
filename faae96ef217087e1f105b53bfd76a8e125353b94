@@ -1,0 +1,37 @@
+components/navbar.tsx
+  2c23ebc1e4d6ccb7 118,132
+  7ddfb43fdd17eba0 4,6,8-15,119-131,133-174
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "faae96ef217087e1f105b53bfd76a8e125353b94",
+  "prompts": {
+    "2c23ebc1e4d6ccb7": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d5e7b-6e60-7921-833a-41b80cc8f262",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 50,
+      "total_deletions": 50,
+      "accepted_lines": 50,
+      "overriden_lines": 0
+    },
+    "7ddfb43fdd17eba0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d5e7f-6d7a-7271-8711-d7f1f22ebf2b",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 68,
+      "total_deletions": 3,
+      "accepted_lines": 65,
+      "overriden_lines": 0
+    }
+  }
+}
