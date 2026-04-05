@@ -90,3 +90,15 @@ export interface SubmitStoryAnswerInput extends StoryAnswerValue {
   questionId: string;
   storyId: string;
 }
+
+export interface StoryQuizSharedProps {
+  /**
+   * Whether to persist quiz answers to the database (true for logged-in users)
+   * or only grade them locally in-memory (false for guest visitors).
+   */
+  canSaveProgress: boolean;
+  initialProgress?: StoryProgress | null;
+  questions: GeneratedQuestion[];
+  storyId: string;
+}
+

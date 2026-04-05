@@ -5,14 +5,9 @@ import { QuizHeader } from "./quiz/quiz-header";
 import { QuizProgressDots } from "./quiz/quiz-progress-dots";
 import { QuizQuestionPanel } from "./quiz/quiz-question-panel";
 import { useStoryQuiz } from "../hooks/use-story-quiz";
-import type { GeneratedQuestion, StoryProgress } from "../types";
+import type { StoryQuizSharedProps } from "../types";
 
-interface QuestionRendererProps {
-  canSaveProgress: boolean;
-  initialProgress?: StoryProgress | null;
-  questions: GeneratedQuestion[];
-  storyId: string;
-}
+export type QuestionRendererProps = StoryQuizSharedProps;
 
 /**
  * Renders the interactive story quiz with saved progress support.
@@ -50,12 +45,9 @@ export function QuestionRenderer({
           canSaveProgress={quiz.canSaveProgress}
           draftAnswer={quiz.currentDraft}
           isPending={quiz.isPending}
+          onChange={(id, value) => quiz.setAnswer(id, value)}
           onNext={quiz.goToNextQuestion}
-          onOptionChange={(option) =>
-            quiz.setOptionAnswer(quiz.currentQuestion.id, option)
-          }
           onSubmit={quiz.submitCurrentAnswer}
-          onTextChange={(value) => quiz.setTextAnswer(quiz.currentQuestion.id, value)}
           question={quiz.currentQuestion}
           savedAnswer={quiz.currentSavedAnswer}
           showNextAction={Boolean(quiz.currentSavedAnswer) && !isLastQuestion}

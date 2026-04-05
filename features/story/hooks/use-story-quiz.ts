@@ -8,14 +8,11 @@ import type {
   StoryAnswerValue,
   StoryProgress,
   StoryQuestionAnswer,
+  StoryQuizSharedProps,
+  AnswerValueType,
 } from "../types";
 
-interface UseStoryQuizOptions {
-  canSaveProgress: boolean;
-  initialProgress?: StoryProgress | null;
-  questions: GeneratedQuestion[];
-  storyId: string;
-}
+export type UseStoryQuizOptions = StoryQuizSharedProps;
 
 /**
  * Manages draft answers, persisted progress, and grading flow for the story quiz.
@@ -47,32 +44,24 @@ export function useStoryQuiz({
   const completionPercent =
     totalQuestions === 0 ? 0 : Math.round((answeredCount / totalQuestions) * 100);
 
-  function setOptionAnswer(questionId: string, selectedOption: string) {
-    setDraftAnswers((current) => ({
-      ...current,
-      [questionId]: {
-        valueType: "OPTION",
-        selectedOption,
-      },
-    }));
-  }
+  function setAnswer(questionId: string, value: string | boolean) {
+    const question = questions.find((q) => q.id === questionId);
+    if (!question) return;
 
-  function setTextAnswer(questionId: string, textAnswer: string) {
-    setDraftAnswers((current) => ({
-      ...current,
-      [questionId]: {
-        valueType: "TEXT",
-        textAnswer,
-      },
-    }));
-  }
+    const isObjective = (question.options?.length ?? 0) > 0;
+    const valueType: AnswerValueType = isObjective
+      ? "OPTION"
+      : typeof value === "boolean"
+      ? "BOOLEAN"
+      : "TEXT";
 
-  function setBooleanAnswer(questionId: string, booleanAnswer: boolean) {
     setDraftAnswers((current) => ({
       ...current,
       [questionId]: {
-        valueType: "BOOLEAN",
-        booleanAnswer,
+        valueType,
+        selectedOption: valueType === "OPTION" ? (value as string) : null,
+        textAnswer: valueType === "TEXT" ? (value as string) : null,
+        booleanAnswer: valueType === "BOOLEAN" ? (value as boolean) : null,
       },
     }));
   }
@@ -148,9 +137,7 @@ export function useStoryQuiz({
     isPending,
     progress,
     savedAnswerMap,
-    setBooleanAnswer,
-    setOptionAnswer,
-    setTextAnswer,
+    setAnswer,
     submitCurrentAnswer,
     totalQuestions,
   };

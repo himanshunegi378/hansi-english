@@ -4,6 +4,8 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 - use pnpm as package manager
+- When making components think about how we can decompose it into smaller components
+- follow compound components pattern as primary pattern for component development
 - use shadcn ui for components (use its skill and frontend desing skill)
 - read `BRAND_UI_GUIDELINES.md` before generating or changing UI so the product stays visually consistent
 - use theme colors only

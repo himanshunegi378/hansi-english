@@ -19,9 +19,8 @@ interface QuizQuestionPanelProps {
   draftAnswer?: StoryAnswerValue;
   isPending: boolean;
   onNext: () => void;
-  onOptionChange: (option: string) => void;
+  onChange: (id: string, value: string | boolean) => void;
   onSubmit: () => void;
-  onTextChange: (value: string) => void;
   question: GeneratedQuestion;
   savedAnswer?: StoryQuestionAnswer;
   showNextAction: boolean;
@@ -37,9 +36,8 @@ export function QuizQuestionPanel({
   draftAnswer,
   isPending,
   onNext,
-  onOptionChange,
+  onChange,
   onSubmit,
-  onTextChange,
   question,
   savedAnswer,
   showNextAction,
@@ -84,7 +82,7 @@ export function QuizQuestionPanel({
                   isIncorrect={
                     savedAnswer?.isCorrect === false && savedAnswer.selectedOption === option
                   }
-                  onClick={() => onOptionChange(option)}
+                  onClick={() => onChange(question.id, option)}
                 />
               ))}
             </div>
@@ -96,7 +94,7 @@ export function QuizQuestionPanel({
                   id={`answer-${question.id}`}
                   placeholder="Write your answer in simple English."
                   value={textValue}
-                  onChange={(event) => onTextChange(event.target.value)}
+                  onChange={(event) => onChange(question.id, event.target.value)}
                   rows={5}
                 />
                 <FieldDescription>

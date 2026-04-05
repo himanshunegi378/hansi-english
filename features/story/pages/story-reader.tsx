@@ -16,6 +16,10 @@ export function StoryReader({
   canSaveProgress,
   story,
 }: {
+  /**
+   * Whether the current viewer can save their quiz progress to a profile.
+   * Typically true for authenticated users and false for guest visitors.
+   */
   canSaveProgress: boolean;
   story: PersistedStory;
 }) {
