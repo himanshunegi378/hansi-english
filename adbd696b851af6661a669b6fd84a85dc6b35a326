@@ -1,0 +1,23 @@
+features/anki/components/deck-detail/deck-detail.tsx
+  bbd77a702985acff 98,100,104-110,113-119,121-162,164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "adbd696b851af6661a669b6fd84a85dc6b35a326",
+  "prompts": {
+    "bbd77a702985acff": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d630a-c970-7f02-b4a7-775641a8067b",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 74,
+      "total_deletions": 89,
+      "accepted_lines": 60,
+      "overriden_lines": 0
+    }
+  }
+}
