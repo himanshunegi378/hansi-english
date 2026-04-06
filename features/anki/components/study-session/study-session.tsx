@@ -70,21 +70,13 @@ function Flashcard({
       >
         {/* Front Face */}
         <div className="backface-hidden absolute inset-0 translate-z-0 antialiased">
-          <Card className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border/70 bg-secondary/30 shadow-sm ring-1 ring-border/40 transition-colors hover:border-primary/15">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-background/70 via-secondary/40 to-transparent" />
+          <Card className="flex h-full flex-col overflow-hidden rounded-lg border border-border/70 bg-secondary/30 shadow-sm ring-1 ring-border/40 transition-colors hover:border-primary/15">
             <CardHeader className="relative gap-2 border-b border-border/60 bg-background/60 p-5 backdrop-blur-sm">
-              <Badge
-                variant="outline"
-                className="w-fit rounded-full bg-background/80 text-muted-foreground"
-              >
-                Prompt Side
-              </Badge>
+
               <CardTitle className="font-heading text-xl tracking-tight sm:text-2xl">
                 Question
               </CardTitle>
-              <CardDescription className="text-xs">
-                Recall the answer from memory before you reveal.
-              </CardDescription>
+
             </CardHeader>
             <CardContent className="flex flex-1 items-center justify-center p-6 text-center">
               <p className="max-w-2xl text-lg font-medium text-foreground sm:text-2xl">
@@ -105,24 +97,14 @@ function Flashcard({
 
         {/* Back Face */}
         <div className="backface-hidden absolute inset-0 translate-z-0 antialiased transform-[rotateY(180deg)]">
-          <Card className="flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-primary/15 bg-primary/6 shadow-sm shadow-primary/8 ring-1 ring-primary/10">
-            <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-background/50" />
+          <Card className="flex h-full flex-col overflow-hidden rounded-lg border border-primary/15 bg-primary/6 shadow-sm shadow-primary/8 ring-1 ring-primary/10">
             <CardHeader className="relative gap-1 border-b border-primary/10 bg-background/70 p-5 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <CardTitle className="font-heading text-xl tracking-tight">
                   Answer
                 </CardTitle>
-                <Badge
-                  variant="outline"
-                  className="rounded-full border-primary/20 bg-background/85"
-                >
-                  <Zap className="mr-1 h-3 w-3" />
-                  Grade Session
-                </Badge>
               </div>
-              <CardDescription className="text-xs">
-                Check your recall, then choose how it felt.
-              </CardDescription>
+
             </CardHeader>
             <CardContent className="relative flex flex-1 items-center justify-center p-6 text-center">
               <p className="max-w-2xl text-base leading-7 text-foreground sm:text-lg">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,9 +25,6 @@ export function AnkiDeckListPage() {
     select: (decks) =>
       decks.map((deck) => ({
         ...deck,
-        createdAtLabel: formatDistanceToNow(new Date(deck.createdAt), {
-          addSuffix: true,
-        }),
         href: `/anki/${deck.id}`,
         studyHref: `/anki/${deck.id}/study`,
       })),
@@ -67,10 +63,13 @@ export function AnkiDeckListPage() {
                     href={deck.href}
                   />
                   <DeckCard.Body>
-                    <DeckCard.Meta createdAtLabel={deck.createdAtLabel} />
-                    <DeckCard.Stats dueCards={deck.dueCards} totalCards={deck.totalCards} />
+                    <DeckCard.Stats
+                      dueCards={deck.dueCards}
+                      dueHref={deck.studyHref}
+                      totalCards={deck.totalCards}
+                      totalHref={deck.href}
+                    />
                   </DeckCard.Body>
-                  <DeckCard.Actions href={deck.href} studyHref={deck.studyHref} />
                 </DeckCard.Root>
               ))}
             </DeckList.Grid>
