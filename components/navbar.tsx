@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link";
-import { BookOpenText, Layers3, Library, LogIn, Menu, PenSquare } from "lucide-react";
+import { BookOpenText, ClipboardCheck, Layers3, Library, LogIn, Menu, PenSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { UserNav } from "@/components/user-nav";
@@ -24,13 +24,16 @@ type NavigationItem = {
   label: string;
   icon?: typeof PenSquare;
   requiresStoryCreator?: boolean;
+  requiresQuizManager?: boolean;
 };
 
 const navigationItems: NavigationItem[] = [
   { href: "/", label: "Home" },
   { href: "/story", label: "Story Studio", icon: PenSquare, requiresStoryCreator: true },
   { href: "/stories", label: "Library", icon: Library },
+  { href: "/quizzes", label: "Quizzes", icon: ClipboardCheck },
   { href: "/anki", label: "Anki", icon: Layers3 },
+  { href: "/admin/quizzes", label: "Quiz Studio", icon: ClipboardCheck, requiresQuizManager: true },
 ];
 
 interface NavbarProps {
@@ -46,7 +49,11 @@ function getVisibleNavigationItems(session: Session | null): NavigationItem[] {
 
   return navigationItems.filter((item) => {
     if (!item.requiresStoryCreator) {
-      return true;
+      if (!item.requiresQuizManager) {
+        return true;
+      }
+
+      return ability.can(permissions.quiz.manage.action, permissions.quiz.manage.subject);
     }
 
     return ability.can(permissions.story.creator.action, permissions.story.creator.subject);
