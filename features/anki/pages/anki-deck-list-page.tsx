@@ -62,14 +62,14 @@ export function AnkiDeckListPage() {
                     description={deck.description}
                     href={deck.href}
                   />
-                  <DeckCard.Body>
-                    <DeckCard.Stats
-                      dueCards={deck.dueCards}
-                      dueHref={deck.studyHref}
-                      totalCards={deck.totalCards}
-                      totalHref={deck.href}
-                    />
-                  </DeckCard.Body>
+                  <DeckCard.TotalStat
+                    count={deck.totalCards}
+                    href={deck.href}
+                  />
+                  <DeckCard.DueIndicator
+                    count={deck.dueCards}
+                    href={deck.studyHref}
+                  />
                 </DeckCard.Root>
               ))}
             </DeckList.Grid>

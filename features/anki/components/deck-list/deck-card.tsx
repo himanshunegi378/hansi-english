@@ -4,12 +4,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Layers } from "lucide-react";
 
+/**
+ * Primary container for a deck summary card.
+ */
 function Root({
   children,
   index,
@@ -22,14 +26,19 @@ function Root({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.28, ease: "easeOut" }}
+      className="h-full"
     >
-      <Card className="rounded-md">
+      <Card className="group relative grid h-full grid-cols-[1fr_auto] overflow-hidden rounded-xl border border-border/50 bg-card/40 transition-all hover:bg-card/60 hover:shadow-lg">
         {children}
       </Card>
     </motion.div>
   );
 }
 
+
+/**
+ * Descriptive header for the deck.
+ */
 function Header({
   description,
   href,
@@ -40,13 +49,13 @@ function Header({
   title: string;
 }) {
   return (
-    <CardHeader className="py-4 border-b">
-      <CardTitle className="">
+    <CardHeader className="col-start-1 row-start-1 p-5 pb-2">
+      <CardTitle className="text-xl">
         <Link href={href} className="transition-opacity hover:opacity-80">
           {title}
         </Link>
       </CardTitle>
-      <CardDescription className="">
+      <CardDescription className="line-clamp-2 min-h-10 leading-relaxed text-balance">
         {description || "A focused deck for steady spaced-repetition practice."}
       </CardDescription>
     </CardHeader>
@@ -54,58 +63,71 @@ function Header({
 }
 
 /**
- * Renders the deck stat links for study and card management.
+ * Renders the total card count as a secondary stat.
  */
-function Stats({
-  dueCards,
-  dueHref,
-  totalCards,
-  totalHref,
+function TotalStat({
+  count,
+  href,
 }: {
-  dueCards: number;
-  dueHref: string;
-  totalCards: number;
-  totalHref: string;
+  count: number;
+  href: string;
 }) {
   return (
-    <div className="grid gap-3 grid-cols-2">
+    <div className="col-start-1 row-start-2 px-5 pb-5 mt-auto">
       <Link
-        href={dueHref}
-        className="rounded-lg border border-border/60 bg-background/80 p-4 transition-colors hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        href={href}
+        className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/50 px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/40"
       >
-        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-          Due now
-        </p>
-        <p className="mt-2 font-heading text-3xl text-foreground">{dueCards}</p>
-      </Link>
-      <Link
-        href={totalHref}
-        className="rounded-lg border border-border/60 bg-background/80 p-4 transition-colors hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-          Total cards
-        </p>
-        <div className="mt-2 flex items-baseline gap-2">
-          <p className="font-heading text-3xl text-foreground">{totalCards}</p>
-          {totalCards === 0 ? (
-            <p className="text-sm font-medium text-muted-foreground">Add card</p>
-          ) : null}
-        </div>
+        <Layers className="size-3.5" />
+        <span>
+          {count} {count === 1 ? "card" : "cards"}
+        </span>
       </Link>
     </div>
   );
 }
 
-function Body({ children }: { children: React.ReactNode }) {
-  return <CardContent className="flex flex-col gap-4 pb-4">{children}</CardContent>;
+/**
+ * Full-height indicator for cards due for review (right side).
+ */
+function DueIndicator({
+  count,
+  href,
+}: {
+  count: number;
+  href: string;
+}) {
+  const isDue = count > 0;
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "col-start-2 row-span-2 flex w-20 flex-col items-center justify-center border-l border-border/50 transition-all sm:w-24",
+        isDue
+          ? "bg-primary/5 text-primary hover:bg-primary hover:text-primary-foreground"
+          : "bg-secondary/5 text-muted-foreground/40 hover:bg-secondary/10"
+      )}
+    >
+      <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">
+        Due
+      </span>
+      <span className={cn(
+        "mt-1 text-4xl font-heading font-bold tabular-nums tracking-tight",
+        isDue ? "opacity-100" : "opacity-40"
+      )}>
+        {count}
+      </span>
+    </Link>
+  );
 }
 
 /**
- * Compound card primitive for deck summaries.
+ * Compound card primitive for deck summaries in a grid.
  */
 export const DeckCard = {
-  Body,
+  DueIndicator,
   Header,
   Root,
-  Stats,
+  TotalStat,
 };

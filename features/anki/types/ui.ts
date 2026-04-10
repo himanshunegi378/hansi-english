@@ -1,7 +1,6 @@
 import type { CardDto, DeckDetail, DeckSummary, StudyCardDto } from "../backend/types";
 
 export interface AnkiDeckListItem extends DeckSummary {
-  createdAtLabel: string;
   href: string;
   studyHref: string;
 }
@@ -13,11 +12,8 @@ export interface AnkiDeckCardViewModel extends CardDto {
 export interface AnkiDeckDetailViewModel
   extends Omit<DeckDetail, "cards" | "createdAt" | "updatedAt"> {
   cards: AnkiDeckCardViewModel[];
-  createdAtLabel: string;
-  dueCards: number;
   studyHref: string;
   totalCards: number;
-  updatedAtLabel: string;
 }
 
 export interface AnkiStudySessionCard extends StudyCardDto {

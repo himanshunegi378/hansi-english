@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -33,7 +33,6 @@ interface AnkiDeckDetailPageProps {
  * @returns Formatted deck view model.
  */
 function toDeckViewModel(deck: DeckDetailDto): AnkiDeckDetailViewModel {
-  const now = new Date();
 
   return {
     ...deck,
@@ -41,17 +40,8 @@ function toDeckViewModel(deck: DeckDetailDto): AnkiDeckDetailViewModel {
       ...card,
       nextReviewLabel: format(new Date(card.nextReview), "PPp"),
     })),
-    createdAtLabel: formatDistanceToNow(new Date(deck.createdAt), {
-      addSuffix: true,
-    }),
-    dueCards: deck.cards.filter(
-      (card) => new Date(card.nextReview).getTime() <= now.getTime(),
-    ).length,
     studyHref: `/anki/${deck.id}/study`,
     totalCards: deck.cards.length,
-    updatedAtLabel: formatDistanceToNow(new Date(deck.updatedAt), {
-      addSuffix: true,
-    }),
   };
 }
 
@@ -149,8 +139,8 @@ export function AnkiDeckDetailPage({ deckId }: AnkiDeckDetailPageProps) {
     return (
       <AnkiPageShell.Root>
         <AnkiPageShell.Body>
-          <div className="rounded-[2rem] border border-border/60 bg-card/90 p-6 text-sm text-muted-foreground">
-            Loading deck...
+          <div className="rounded-[2rem] border border-border/60 bg-card/90 p-6 text-sm text-foreground/80">
+            Loading deck…
           </div>
         </AnkiPageShell.Body>
       </AnkiPageShell.Root>
@@ -182,6 +172,7 @@ export function AnkiDeckDetailPage({ deckId }: AnkiDeckDetailPageProps) {
           <DeckDetail.Header
             title={deck.name}
             description={deck.description}
+            totalCards={deck.totalCards}
             actions={(
               <>
                 <Button
@@ -203,20 +194,15 @@ export function AnkiDeckDetailPage({ deckId }: AnkiDeckDetailPageProps) {
               </>
             )}
           />
-          <DeckDetail.Body>
-            <DeckDetail.Stats
-              createdAtLabel={deck.createdAtLabel}
-              updatedAtLabel={deck.updatedAtLabel}
-              dueCards={deck.dueCards}
-              totalCards={deck.totalCards}
-            />
-            <DeckDetail.CardList
-              cards={deck.cards}
-              onEdit={openEditCard}
-              onDelete={setCardToDelete}
-            />
-          </DeckDetail.Body>
         </DeckDetail.Root>
+
+        <div className="mt-8 flex flex-col gap-6">
+          <DeckDetail.CardList
+            cards={deck.cards}
+            onEdit={openEditCard}
+            onDelete={setCardToDelete}
+          />
+        </div>
       </AnkiPageShell.Body>
 
       <CardEditorDialog.Root open={isEditorOpen} onOpenChange={setIsEditorOpen}>
