@@ -1,0 +1,23 @@
+features/quiz/screens.md
+  3554a144be372e03 1-494
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "083ef469e77ae6c4e856d8e6cb6d94e313e6a90c",
+  "prompts": {
+    "3554a144be372e03": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d7761-eb91-71c2-917c-48ad47fc20b6",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 494,
+      "total_deletions": 0,
+      "accepted_lines": 494,
+      "overriden_lines": 0
+    }
+  }
+}
