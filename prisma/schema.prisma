@@ -32,30 +32,53 @@ enum AnswerValueType {
   BOOLEAN
 }
 
+enum QuizStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum QuizQuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+enum QuizAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  AUTO_GRADED
+  MANUALLY_GRADED
+}
+
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role      @default(USER)
-  stories       Story[]
-  storyProgress StoryProgress[]
-  decks         Deck[]
-  reviewLogs    ReviewLog[]
+  id                 String              @id @default(cuid())
+  name               String?
+  email              String?             @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  role               Role                @default(USER)
+  stories            Story[]
+  storyProgress      StoryProgress[]
+  decks              Deck[]
+  reviewLogs         ReviewLog[]
+  createdQuizzes     Quiz[]              @relation("QuizCreatedBy")
+  quizAttempts       QuizAttempt[]
+  quizAttemptAnswers QuizAttemptAnswer[]
 }
 
 model Story {
-  id          String       @id @default(cuid())
+  id          String          @id @default(cuid())
   title       String
   content     String
   prompt      String
   level       EnglishLevel
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   createdById String
-  createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdBy   User            @relation(fields: [createdById], references: [id], onDelete: Cascade)
   questions   Question[]
   progress    StoryProgress[]
 
@@ -64,9 +87,9 @@ model Story {
 }
 
 model Question {
-  id            String       @id @default(cuid())
+  id            String          @id @default(cuid())
   storyId       String
-  story         Story        @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  story         Story           @relation(fields: [storyId], references: [id], onDelete: Cascade)
   text          String
   type          QuestionType
   options       String[]
@@ -171,4 +194,129 @@ model ReviewLog {
 
   @@index([cardId])
   @@index([userId])
+}
+
+model Quiz {
+  id           String        @id @default(cuid())
+  title        String
+  description  String?
+  status       QuizStatus    @default(DRAFT)
+  timeLimitMin Int?
+  passingScore Float?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  createdById  String
+  createdBy    User          @relation("QuizCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  sections     QuizSection[]
+  attempts     QuizAttempt[]
+
+  @@index([createdById])
+  @@index([status])
+}
+
+model QuizSection {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  quizId      String
+  quiz        Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questions   QuizQuestion[]
+
+  @@unique([quizId, order])
+  @@index([quizId])
+}
+
+model QuizQuestion {
+  id                String               @id @default(cuid())
+  text              String
+  explanation       String?
+  type              QuizQuestionType
+  order             Int
+  points            Float                @default(1)
+  isRequired        Boolean              @default(true)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  sectionId         String
+  section           QuizSection          @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  options           QuizQuestionOption[]
+  answers           QuizAttemptAnswer[]
+  correctTextAnswer String?
+  metadata          Json?
+
+  @@unique([sectionId, order])
+  @@index([sectionId])
+  @@index([type])
+}
+
+model QuizQuestionOption {
+  id         String                    @id @default(cuid())
+  text       String
+  order      Int
+  isCorrect  Boolean                   @default(false)
+  createdAt  DateTime                  @default(now())
+  updatedAt  DateTime                  @updatedAt
+  questionId String
+  question   QuizQuestion              @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedIn QuizAttemptAnswerOption[]
+
+  @@unique([questionId, order])
+  @@index([questionId])
+}
+
+model QuizAttempt {
+  id            String              @id @default(cuid())
+  startedAt     DateTime            @default(now())
+  submittedAt   DateTime?
+  status        QuizAttemptStatus   @default(IN_PROGRESS)
+  score         Float?
+  maxScore      Float?
+  passed        Boolean?
+  attemptNumber Int                 @default(1)
+  quizId        String
+  quiz          Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers       QuizAttemptAnswer[]
+
+  @@unique([quizId, userId, attemptNumber])
+  @@index([quizId])
+  @@index([userId])
+  @@index([status])
+}
+
+model QuizAttemptAnswer {
+  id              String                    @id @default(cuid())
+  textAnswer      String?
+  isCorrect       Boolean?
+  awardedPoints   Float?
+  feedback        String?
+  gradedAt        DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  attemptId       String
+  attempt         QuizAttempt               @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId      String
+  question        QuizQuestion              @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  selectedOptions QuizAttemptAnswerOption[]
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@index([userId])
+}
+
+model QuizAttemptAnswerOption {
+  id       String             @id @default(cuid())
+  answerId String
+  optionId String
+  answer   QuizAttemptAnswer  @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  option   QuizQuestionOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([answerId, optionId])
+  @@index([optionId])
 }

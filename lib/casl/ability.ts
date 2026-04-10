@@ -16,6 +16,7 @@ export const subjects = {
   post: "Post",
   adminPanel: "AdminPanel",
   storyCreator: "StoryCreator",
+  quiz: "Quiz",
   all: "all",
 } as const
 
@@ -51,6 +52,12 @@ export const permissions = {
       subject: subjects.storyCreator,
     },
   },
+  quiz: {
+    manage: {
+      action: actions.manage,
+      subject: subjects.quiz,
+    },
+  },
   system: {
     fullAccess: {
       action: actions.manage,
@@ -80,7 +87,7 @@ export function defineAbilitiesFor(role: AppRole) {
     applyPermissions(can, [permissions.system.fullAccess])
   } else {
     applyPermissions(can, [permissions.post.read, permissions.post.create])
-    applyPermissions(cannot, [permissions.admin.panel, permissions.story.creator])
+    applyPermissions(cannot, [permissions.admin.panel, permissions.story.creator, permissions.quiz.manage])
   }
 
   return build()
