@@ -1,0 +1,49 @@
+features/story/actions/generate-story.ts
+  29ecdd8735dea25e 122-123,148-151
+prisma/schema.prisma
+  29ecdd8735dea25e 73-84,156-164,169-178
+features/anki/components/deck-list/deck-card.tsx
+  d0007d7af7bf16d5 31,46,51,54-62
+features/anki/pages/anki-deck-list-page.tsx
+  d0007d7af7bf16d5 8-14,89-96,105-110
+  29ecdd8735dea25e 4,6,15,29,32,45-58,97-104
+features/create-story-from-deck/create-story-from-deck.ts
+  29ecdd8735dea25e 1-93
+features/create-story-from-deck/index.ts
+  29ecdd8735dea25e 1-2
+features/create-story-from-deck/use-create-story-from-deck.ts
+  29ecdd8735dea25e 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "d1e8e14e59c21b6c620ce92a87f7d03b81b55bea",
+  "prompts": {
+    "29ecdd8735dea25e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d7b36-4b18-7691-8dc2-4ef31d1ac345",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 206,
+      "total_deletions": 29,
+      "accepted_lines": 203,
+      "overriden_lines": 0
+    },
+    "d0007d7af7bf16d5": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d7b2d-94a1-7242-bdc8-7db7f384a379",
+        "model": "unknown"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 36,
+      "total_deletions": 8,
+      "accepted_lines": 33,
+      "overriden_lines": 0
+    }
+  }
+}
