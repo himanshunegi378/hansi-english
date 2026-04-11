@@ -7,6 +7,7 @@ export const ankiQueryKeys = {
     all: ["anki", "decks"] as const,
     detail: (deckId: string) => ["anki", "decks", "detail", deckId] as const,
     list: () => ["anki", "decks", "list"] as const,
+    stories: (deckId: string) => ["anki", "decks", "stories", deckId] as const,
   },
   study: {
     all: ["anki", "study"] as const,

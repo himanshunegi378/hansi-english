@@ -1,48 +1,23 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { BookOpen, ChevronLeft, Plus, Trash2 } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Plus, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AnkiPageShell } from "../components/layout/anki-page-shell";
-import { AnkiSectionHeading } from "../components/shared/anki-section-heading";
-import { CardEditorDialog } from "../components/card-editor/card-editor-dialog";
-import { DeleteCardDialog } from "../components/confirm/delete-card-dialog";
-import { DeleteDeckDialog } from "../components/confirm/delete-deck-dialog";
 import { DeckDetail } from "../components/deck-detail/deck-detail";
+import { DeckCardDialogs } from "../components/deck-detail/deck-card-dialogs";
+import { DeckDetailPageHeader } from "../components/deck-detail/deck-detail-page-header";
+import { DeckDetailTabs } from "../components/deck-detail/deck-detail-tabs";
 import { useAnkiCardActions } from "../hooks/use-anki-card-actions";
 import { useAnkiDeckActions } from "../hooks/use-anki-deck-actions";
-import type { DeckDetail as DeckDetailDto } from "../backend/types";
+import { toDeckViewModel } from "../lib/deck-detail-view-model";
 import { deckDetailQueryOptions } from "../query-options";
-import type {
-  AnkiDeckCardViewModel,
-  AnkiDeckDetailViewModel,
-} from "../types/ui";
+import type { AnkiDeckCardViewModel } from "../types/ui";
 
 interface AnkiDeckDetailPageProps {
   deckId: string;
-}
-
-/**
- * Maps the raw deck detail payload into the page view model.
- * @param deck Raw deck detail data.
- * @returns Formatted deck view model.
- */
-function toDeckViewModel(deck: DeckDetailDto): AnkiDeckDetailViewModel {
-
-  return {
-    ...deck,
-    cards: deck.cards.map((card) => ({
-      ...card,
-      nextReviewLabel: format(new Date(card.nextReview), "PPp"),
-    })),
-    studyHref: `/anki/${deck.id}/study`,
-    totalCards: deck.cards.length,
-  };
 }
 
 /**
@@ -149,23 +124,7 @@ export function AnkiDeckDetailPage({ deckId }: AnkiDeckDetailPageProps) {
 
   return (
     <AnkiPageShell.Root>
-      <AnkiPageShell.Header>
-        <AnkiSectionHeading
-          eyebrow="Deck workspace"
-          actions={(
-            <AnkiPageShell.Actions>
-              <Link href="/anki" className={cn(buttonVariants({ variant: "outline" }), "rounded-full px-4")}>
-                <ChevronLeft data-icon="inline-start" />
-                Back to decks
-              </Link>
-              <Link href={deck.studyHref} className={cn(buttonVariants({ variant: "default" }), "rounded-full px-4")}>
-                <BookOpen data-icon="inline-start" />
-                Start study
-              </Link>
-            </AnkiPageShell.Actions>
-          )}
-        />
-      </AnkiPageShell.Header>
+      <DeckDetailPageHeader studyHref={deck.studyHref} />
 
       <AnkiPageShell.Body>
         <DeckDetail.Root>
@@ -197,56 +156,38 @@ export function AnkiDeckDetailPage({ deckId }: AnkiDeckDetailPageProps) {
         </DeckDetail.Root>
 
         <div className="mt-8 flex flex-col gap-6">
-          <DeckDetail.CardList
+          <DeckDetailTabs
+            deckId={deck.id}
             cards={deck.cards}
-            onEdit={openEditCard}
-            onDelete={setCardToDelete}
+            onEditCard={openEditCard}
+            onDeleteCard={setCardToDelete}
           />
         </div>
       </AnkiPageShell.Body>
 
-      <CardEditorDialog.Root open={isEditorOpen} onOpenChange={setIsEditorOpen}>
-        <CardEditorDialog.Content
-          title={cardToEdit ? "Edit card" : "Add a card"}
-          description={cardToEdit ? "Refine the prompt or answer without bloating the deck." : "Write a prompt that invites recall and an answer that confirms it clearly."}
-        >
-          <form onSubmit={handleSaveCard} className="flex flex-col">
-            <CardEditorDialog.Form
-              front={editorValues.front}
-              back={editorValues.back}
-              errors={fieldErrors}
-              onFrontChange={(front) =>
-                setEditorValues((value) => ({ ...value, front }))
-              }
-              onBackChange={(back) =>
-                setEditorValues((value) => ({ ...value, back }))
-              }
-            />
-            <CardEditorDialog.Actions
-              isPending={isSavingCard}
-              submitLabel={cardToEdit ? "Save changes" : "Add card"}
-            />
-          </form>
-        </CardEditorDialog.Content>
-      </CardEditorDialog.Root>
-
-      <DeleteDeckDialog
-        open={isDeleteDeckOpen}
-        onOpenChange={setIsDeleteDeckOpen}
-        name={deck.name}
-        isPending={deletingDeckId === deck.id}
-        onConfirm={handleDeleteDeck}
-      />
-
-      <DeleteCardDialog
-        open={Boolean(cardToDelete)}
-        onOpenChange={(open) => {
+      <DeckCardDialogs
+        cardToDelete={cardToDelete}
+        cardToEdit={cardToEdit}
+        deckName={deck.name}
+        deletingCardId={deletingCardId}
+        deletingDeckId={deletingDeckId === deck.id ? deletingDeckId : null}
+        editorValues={editorValues}
+        fieldErrors={fieldErrors}
+        isDeleteDeckOpen={isDeleteDeckOpen}
+        isEditorOpen={isEditorOpen}
+        isSavingCard={isSavingCard}
+        onBackChange={(back) => setEditorValues((value) => ({ ...value, back }))}
+        onConfirmDeleteCard={handleDeleteCard}
+        onConfirmDeleteDeck={handleDeleteDeck}
+        onFrontChange={(front) => setEditorValues((value) => ({ ...value, front }))}
+        onOpenChangeDeleteCard={(open) => {
           if (!open) {
             setCardToDelete(null);
           }
         }}
-        isPending={deletingCardId === cardToDelete?.id}
-        onConfirm={handleDeleteCard}
+        onOpenChangeDeleteDeck={setIsDeleteDeckOpen}
+        onOpenChangeEditor={setIsEditorOpen}
+        onSaveCard={handleSaveCard}
       />
     </AnkiPageShell.Root>
   );

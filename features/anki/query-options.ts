@@ -1,4 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
+import { listStoriesByDeckIdAction } from "@/features/create-story-from-deck";
 import {
   getDeckRequest,
   getStudyQueueRequest,
@@ -26,6 +27,18 @@ export function deckDetailQueryOptions(deckId: string) {
   return queryOptions({
     queryKey: ankiQueryKeys.decks.detail(deckId),
     queryFn: () => getDeckRequest(deckId),
+  });
+}
+
+/**
+ * Creates query options for loading all saved stories linked to a deck.
+ * @param deckId Deck id to fetch stories for.
+ * @returns React Query options for deck stories.
+ */
+export function deckStoriesQueryOptions(deckId: string) {
+  return queryOptions({
+    queryKey: ankiQueryKeys.decks.stories(deckId),
+    queryFn: () => listStoriesByDeckIdAction(deckId),
   });
 }
 
