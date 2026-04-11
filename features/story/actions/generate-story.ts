@@ -119,8 +119,8 @@ export async function generateStoryQuestionsAction(storyContent: string, level: 
 
     try {
       const rawQuestions = JSON.parse(questionsMatch[1].trim());
-      const questionsData = Array.isArray(rawQuestions) 
-        ? rawQuestions 
+      const questionsData = Array.isArray(rawQuestions)
+        ? rawQuestions
         : (rawQuestions as Record<string, unknown>)?.questions;
 
       const questions = (Array.isArray(questionsData) ? questionsData : []).map((q: Record<string, unknown>) => ({
@@ -145,8 +145,10 @@ export async function generateStoryQuestionsAction(storyContent: string, level: 
  * @param input The generated story payload waiting to be persisted.
  * @returns The newly created persisted story record.
  */
-export async function saveGeneratedStoryAction(input: SaveStoryInput): Promise<PersistedStory> {
-  const createdById = await requireAdminUserId();
+export async function saveGeneratedStoryAction(input: SaveStoryInput, options: {
+  userId?: string;
+} = {}): Promise<PersistedStory> {
+  const createdById = options.userId ?? await requireAdminUserId();
 
   const result = saveStorySchema.safeParse(input);
   if (!result.success) {

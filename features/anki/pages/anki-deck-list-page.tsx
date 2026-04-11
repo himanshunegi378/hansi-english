@@ -1,9 +1,18 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Menubar,
+  MenubarMenu,
+  MenubarTrigger,
+  MenubarContent,
+  MenubarItem,
+} from "@/components/ui/menubar";
+import { useCreateStoryFromDeck } from "@/features/create-story-from-deck";
 import { AnkiPageShell } from "../components/layout/anki-page-shell";
 import { AnkiSectionHeading } from "../components/shared/anki-section-heading";
 import { CreateDeckDialog } from "../components/deck-list/create-deck-dialog";
@@ -17,8 +26,10 @@ import { listDecksQueryOptions } from "../query-options";
  * @returns The deck-list page composition.
  */
 export function AnkiDeckListPage() {
+  const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { createDeck, isCreatingDeck } = useAnkiDeckActions();
+  const { createDeckStory, creatingStoryDeckId } = useCreateStoryFromDeck();
   const deckListQuery = useQuery({
     ...listDecksQueryOptions(),
     throwOnError: true,
@@ -30,6 +41,20 @@ export function AnkiDeckListPage() {
       })),
   });
   const decks = deckListQuery.data ?? [];
+
+  /**
+   * Creates a story from the selected deck and opens it after persistence.
+   * @param deckId Source deck id.
+   */
+  async function handleCreateStory(deckId: string) {
+    const story = await createDeckStory(deckId);
+
+    if (!story) {
+      return;
+    }
+
+    router.push(`/story?storyId=${encodeURIComponent(story.id)}`);
+  }
 
   return (
     <AnkiPageShell.Root>
@@ -61,6 +86,28 @@ export function AnkiDeckListPage() {
                     title={deck.name}
                     description={deck.description}
                     href={deck.href}
+                    actions={(
+                      <Menubar className="h-auto border-none bg-transparent p-0">
+                        <MenubarMenu>
+                          <MenubarTrigger className="flex size-8 items-center justify-center rounded-full p-0 hover:bg-muted data-[state=open]:bg-muted">
+                            <MoreVertical className="size-4" />
+                            <span className="sr-only">Open menu</span>
+                          </MenubarTrigger>
+                          <MenubarContent align="end">
+                            <MenubarItem
+                              className="gap-2"
+                              disabled={creatingStoryDeckId === deck.id}
+                              onClick={() => void handleCreateStory(deck.id)}
+                            >
+                              {creatingStoryDeckId === deck.id
+                                ? "Creating story..."
+                                : "Create Story"}
+                            </MenubarItem>
+
+                          </MenubarContent>
+                        </MenubarMenu>
+                      </Menubar>
+                    )}
                   />
                   <DeckCard.TotalStat
                     count={deck.totalCards}

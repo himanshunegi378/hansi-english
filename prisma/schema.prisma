@@ -70,17 +70,18 @@ model User {
 }
 
 model Story {
-  id          String          @id @default(cuid())
-  title       String
-  content     String
-  prompt      String
-  level       EnglishLevel
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  createdById String
-  createdBy   User            @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  questions   Question[]
-  progress    StoryProgress[]
+  id               String            @id @default(cuid())
+  title            String
+  content          String
+  prompt           String
+  level            EnglishLevel
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  createdById      String
+  createdBy        User              @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  questions        Question[]
+  progress         StoryProgress[]
+  deckStoryMapping DeckStoryMapping?
 
   @@index([createdAt(sort: Desc)])
   @@index([createdById])
@@ -152,16 +153,29 @@ model WordMeaningCache {
 }
 
 model Deck {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cards       Card[]
+  id               String             @id @default(cuid())
+  name             String
+  description      String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  userId           String
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards            Card[]
+  deckStoryMapping DeckStoryMapping[]
 
   @@index([userId])
+}
+
+model DeckStoryMapping {
+  id        String   @id @default(cuid())
+  deckId    String
+  storyId   String   @unique
+  createdAt DateTime @default(now())
+  deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@index([deckId])
+  @@map("dec_story_mapping")
 }
 
 model Card {

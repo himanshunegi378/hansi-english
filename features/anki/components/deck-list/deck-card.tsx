@@ -28,7 +28,7 @@ function Root({
       transition={{ delay: index * 0.05, duration: 0.28, ease: "easeOut" }}
       className="h-full"
     >
-      <Card className="group relative grid h-full grid-cols-[1fr_auto] overflow-hidden rounded-xl border border-border/50 bg-card/40 transition-all hover:bg-card/60 hover:shadow-lg">
+      <Card className="group relative gap-0 grid h-full grid-cols-[1fr_auto] overflow-hidden rounded-xl border border-border/50 bg-card/40 transition-all hover:bg-card/60 hover:shadow-lg">
         {children}
       </Card>
     </motion.div>
@@ -43,18 +43,23 @@ function Header({
   description,
   href,
   title,
+  actions,
 }: {
   description: string | null;
   href: string;
   title: string;
+  actions?: React.ReactNode;
 }) {
   return (
-    <CardHeader className="col-start-1 row-start-1 p-5 pb-2">
-      <CardTitle className="text-xl">
-        <Link href={href} className="transition-opacity hover:opacity-80">
-          {title}
-        </Link>
-      </CardTitle>
+    <CardHeader className="col-start-1 row-start-1 p-5 pb-2 relative">
+      <div className="flex items-start justify-between gap-4">
+        <CardTitle className="text-xl">
+          <Link href={href} className="transition-opacity hover:opacity-80">
+            {title}
+          </Link>
+        </CardTitle>
+      </div>
+      {actions && <div className="absolute top-5 right-0">{actions}</div>}
       <CardDescription className="line-clamp-2 min-h-10 leading-relaxed text-balance">
         {description || "A focused deck for steady spaced-repetition practice."}
       </CardDescription>
