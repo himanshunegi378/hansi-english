@@ -1,0 +1,29 @@
+features/anki/pages/anki-deck-list-page.tsx
+  ba7d74291d7bf70d 4,9,23,35,47,79-84,109,112-121
+AGENTS.md
+  ba7d74291d7bf70d 20-21
+features/anki/components/deck-list/deck-story-generation-feedback.tsx
+  ba7d74291d7bf70d 1-57
+features/story/pages/story-reader.tsx
+  ba7d74291d7bf70d 4,33
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "604197b17f9eede4c710a40bcc647e2ba3440262",
+  "prompts": {
+    "ba7d74291d7bf70d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d7b44-0411-78c0-bb18-047d0f528bef",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 83,
+      "total_deletions": 33,
+      "accepted_lines": 83,
+      "overriden_lines": 0
+    }
+  }
+}
