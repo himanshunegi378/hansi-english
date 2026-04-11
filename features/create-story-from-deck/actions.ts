@@ -13,6 +13,7 @@ import type { EnglishLevel, PersistedStory } from "@/features/story/types";
 import prisma from "@/lib/prisma";
 import { getOptionalUserId } from "@/features/story/actions/story-attempt-helpers";
 import type { StoryListItem } from "@/features/story/types";
+import type { CreateStoryFromDeckResult } from "./types";
 
 const DEFAULT_STORY_LEVEL: EnglishLevel = "BEGINNER";
 const MAX_PROMPT_CARDS = 12;
@@ -52,18 +53,30 @@ function buildDeckStoryPrompt(
 /**
  * Creates and saves a story generated from a user-owned deck.
  * @param deckId The source deck identifier.
- * @returns The persisted story created from the deck content.
+ * @returns A serialized result containing either the persisted story or an error.
  */
-export async function createStoryFromDeckAction(deckId: string): Promise<PersistedStory> {
+export async function createStoryFromDeckAction(
+  deckId: string,
+): Promise<CreateStoryFromDeckResult> {
   const userId = await requireAnkiUserId();
   const deck = await findDeckById(deckId, userId);
 
   if (!deck) {
-    throw new Error("Deck not found.");
+    return {
+      success: false,
+      error: {
+        message: "Deck not found.",
+      },
+    };
   }
 
   if (deck.cards.length === 0) {
-    throw new Error("Cannot create a story from an empty deck.");
+    return {
+      success: false,
+      error: {
+        message: "Cannot create a story from an empty deck.",
+      },
+    };
   }
 
   const prompt = buildDeckStoryPrompt(deck);
@@ -96,7 +109,10 @@ export async function createStoryFromDeckAction(deckId: string): Promise<Persist
     },
   });
 
-  return savedStory;
+  return {
+    success: true,
+    story: savedStory,
+  };
 }
 
 /**

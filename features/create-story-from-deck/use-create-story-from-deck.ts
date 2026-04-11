@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { PersistedStory } from "@/features/story/types";
 import { createStoryFromDeck } from "./create-story-from-deck";
+import type { CreateStoryFromDeckResult } from "./types";
 
 /**
  * Manages story creation actions that start from an Anki deck.
@@ -11,7 +12,8 @@ import { createStoryFromDeck } from "./create-story-from-deck";
  */
 export function useCreateStoryFromDeck() {
   const createStoryMutation = useMutation({
-    mutationFn: (deckId: string) => createStoryFromDeck(deckId),
+    mutationFn: (deckId: string): Promise<CreateStoryFromDeckResult> =>
+      createStoryFromDeck(deckId),
   });
 
   /**
@@ -21,9 +23,15 @@ export function useCreateStoryFromDeck() {
    */
   async function createDeckStory(deckId: string): Promise<PersistedStory | null> {
     try {
-      const story = await createStoryMutation.mutateAsync(deckId);
+      const result = await createStoryMutation.mutateAsync(deckId);
+
+      if (!result.success) {
+        toast.error(result.error.message);
+        return null;
+      }
+
       toast.success("Story created.");
-      return story;
+      return result.story;
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to create story.",
