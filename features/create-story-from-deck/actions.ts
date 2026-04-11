@@ -58,61 +58,71 @@ function buildDeckStoryPrompt(
 export async function createStoryFromDeckAction(
   deckId: string,
 ): Promise<CreateStoryFromDeckResult> {
-  const userId = await requireAnkiUserId();
-  const deck = await findDeckById(deckId, userId);
+  try {
+    const userId = await requireAnkiUserId();
+    const deck = await findDeckById(deckId, userId);
 
-  if (!deck) {
-    return {
-      success: false,
-      error: {
-        message: "Deck not found.",
-      },
-    };
-  }
+    if (!deck) {
+      return {
+        success: false,
+        error: {
+          message: "Deck not found.",
+        },
+      };
+    }
 
-  if (deck.cards.length === 0) {
-    return {
-      success: false,
-      error: {
-        message: "Cannot create a story from an empty deck.",
-      },
-    };
-  }
+    if (deck.cards.length === 0) {
+      return {
+        success: false,
+        error: {
+          message: "Cannot create a story from an empty deck.",
+        },
+      };
+    }
 
-  const prompt = buildDeckStoryPrompt(deck);
-  const story = await generateStoryContentAction({
-    prompt,
-    level: DEFAULT_STORY_LEVEL,
-  });
-  const questions = await generateStoryQuestionsAction(
-    story.content,
-    DEFAULT_STORY_LEVEL,
-  );
-
-  const savedStory = await saveGeneratedStoryAction(
-    {
+    const prompt = buildDeckStoryPrompt(deck);
+    const story = await generateStoryContentAction({
       prompt,
-      title: story.title,
-      content: story.content,
       level: DEFAULT_STORY_LEVEL,
-      questions: questions.questions,
-    },
-    {
-      userId,
-    },
-  );
+    });
+    const questions = await generateStoryQuestionsAction(
+      story.content,
+      DEFAULT_STORY_LEVEL,
+    );
 
-  await prisma.deckStoryMapping.create({
-    data: {
-      deckId,
-      storyId: savedStory.id,
-    },
-  });
+    const savedStory = await saveGeneratedStoryAction(
+      {
+        prompt,
+        title: story.title,
+        content: story.content,
+        level: DEFAULT_STORY_LEVEL,
+        questions: questions.questions,
+      },
+      {
+        userId,
+      },
+    );
 
-  return {
-    success: true,
-    story: savedStory,
-  };
+    await prisma.deckStoryMapping.create({
+      data: {
+        deckId,
+        storyId: savedStory.id,
+      },
+    });
+
+    return {
+      success: true,
+      story: savedStory,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        message:
+          error instanceof Error ? error.message : "Failed to create story.",
+      },
+    };
+  }
 }
 
 /**
