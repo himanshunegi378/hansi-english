@@ -18,3 +18,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - files with 'use server' directive can only have async function exported
 - while using tailwind classes avoid using hardocde values like text-[0.9rem]. Prefer standard tailwind classes text-sm, text-md.
 - This project follow feature folders architecture
+- ensure you update the comments if logic changes

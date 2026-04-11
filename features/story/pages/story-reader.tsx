@@ -1,10 +1,9 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, CircleHelp, Trophy } from "lucide-react";
+import { CheckCircle2, Trophy } from "lucide-react";
 import { type PersistedStory } from "../types";
 import { StoryCard } from "../components/story-card";
-import { StoryPageIntro } from "../components/story-page-intro";
 import { QuestionRenderer } from "../components/question-renderer";
 
 /**
@@ -28,34 +27,10 @@ export function StoryReader({
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 pb-20 pt-2 sm:gap-8 sm:p-8 sm:pb-24">
-      <StoryPageIntro
-        eyebrow="Reading Workspace"
-        title="Read first, then check understanding."
-        description="The story stays central, while the comprehension tools sit alongside your progress so the learning flow feels supportive instead of crowded."
-        meta={
-          <>
-            <Badge variant="secondary" className="rounded-full px-3 py-1">
-              <Trophy data-icon="inline-start" />
-              {earnedPoints}/{totalPoints} pts
-            </Badge>
-            <Badge variant="outline" className="rounded-full bg-background/70 px-3 py-1">
-              <CircleHelp data-icon="inline-start" />
-              {story.questions.length} questions
-            </Badge>
-            {story.viewerProgress?.completedAt ? (
-              <Badge className="rounded-full px-3 py-1">
-                <CheckCircle2 data-icon="inline-start" />
-                Story completed
-              </Badge>
-            ) : null}
-          </>
-        }
-      />
-
       <div className="flex flex-col gap-8 sm:gap-10">
         <StoryCard
           title={story.title}
-          prompt={story.prompt}
+          prompt={''}
           level={story.level}
           content={story.content}
           footer={(

@@ -1,10 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Plus, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Menubar,
   MenubarMenu,
@@ -18,6 +20,7 @@ import { AnkiSectionHeading } from "../components/shared/anki-section-heading";
 import { CreateDeckDialog } from "../components/deck-list/create-deck-dialog";
 import { DeckCard } from "../components/deck-list/deck-card";
 import { DeckList } from "../components/deck-list/deck-list";
+import { DeckStoryGenerationFeedback } from "../components/deck-list/deck-story-generation-feedback";
 import { useAnkiDeckActions } from "../hooks/use-anki-deck-actions";
 import { listDecksQueryOptions } from "../query-options";
 
@@ -29,7 +32,7 @@ export function AnkiDeckListPage() {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { createDeck, isCreatingDeck } = useAnkiDeckActions();
-  const { createDeckStory, creatingStoryDeckId } = useCreateStoryFromDeck();
+  const { createDeckStory, creatingStoryDeckId, isCreatingDeckStory } = useCreateStoryFromDeck();
   const deckListQuery = useQuery({
     ...listDecksQueryOptions(),
     throwOnError: true,
@@ -41,6 +44,7 @@ export function AnkiDeckListPage() {
       })),
   });
   const decks = deckListQuery.data ?? [];
+  const activeStoryDeck = decks.find((deck) => deck.id === creatingStoryDeckId) ?? null;
 
   /**
    * Creates a story from the selected deck and opens it after persistence.
@@ -72,6 +76,12 @@ export function AnkiDeckListPage() {
 
       <AnkiPageShell.Body>
         <DeckList.Root>
+          <AnimatePresence>
+            {activeStoryDeck ? (
+              <DeckStoryGenerationFeedback deckName={activeStoryDeck.name} />
+            ) : null}
+          </AnimatePresence>
+
           {deckListQuery.isPending ? (
             <div className="rounded-[2rem] border border-border/60 bg-card/90 p-6 text-sm text-muted-foreground">
               Loading decks...
@@ -96,12 +106,19 @@ export function AnkiDeckListPage() {
                           <MenubarContent align="end">
                             <MenubarItem
                               className="gap-2"
-                              disabled={creatingStoryDeckId === deck.id}
+                              disabled={isCreatingDeckStory}
                               onClick={() => void handleCreateStory(deck.id)}
                             >
-                              {creatingStoryDeckId === deck.id
-                                ? "Creating story..."
-                                : "Create Story"}
+                              {creatingStoryDeckId === deck.id ? (
+                                <>
+                                  <Spinner />
+                                  Creating story...
+                                </>
+                              ) : isCreatingDeckStory ? (
+                                "Story in progress"
+                              ) : (
+                                "Create Story"
+                              )}
                             </MenubarItem>
 
                           </MenubarContent>
