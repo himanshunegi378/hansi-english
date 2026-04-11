@@ -1,0 +1,23 @@
+features/create-story-from-deck/actions.ts
+  cc5869add7361add 61-63,65-99,101-111,113-117,121-122
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "7218a799cf91ebe58f252623d6ad2a035f8d9418",
+  "prompts": {
+    "cc5869add7361add": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d7bc6-0b8e-7442-82bd-c53ef641b1e7",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 56,
+      "total_deletions": 46,
+      "accepted_lines": 56,
+      "overriden_lines": 0
+    }
+  }
+}
