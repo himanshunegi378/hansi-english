@@ -3,21 +3,22 @@
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
-- use pnpm as package manager
-- When making components think about how we can decompose it into smaller components
-- use shadcn ui for components (use its skill and frontend desing skill)
-- use theme colors only
-- use framer motion and its skill for animations
-- use prisma for database (use its skill)
-- always write strongly typed code. using any is banned
-- use ai sdk with groq provider for ai related work (use its skill)
-- use generateText instead of generateObject for ai
-- add jsdoc description to functions and components
-- casl is used for rbac
-- no component should be more that 200 lines. if it is, then refactor it to smaller component, refactor logic to custom hook.
-- files with 'use server' directive can only have async function exported
+- when working in this project, you must use pnpm as the package manager
+- when making components, you must think about how to decompose them into smaller components
+- when building components, you must use shadcn ui and follow its skill and the frontend design skill
+- when styling ui, you must use theme colors only
+- when adding animations, you must use framer motion and follow its skill
+- when working with the database, you must use prisma and follow its skill
+- when writing code, you must keep it strongly typed and must not use `any`
+- when doing ai related work, you must use ai sdk with the groq provider and follow its skill
+- when generating structured ai output, you must use `generateText` instead of `generateObject`
+- when writing functions and components, you must add jsdoc descriptions
+- when implementing rbac, you must use casl
+- when writing components, you must keep each component under 200 lines, or refactor it into smaller components and custom hooks
+- when writing files with the `use server` directive, you must export only async functions
 - when writing server actions, you must return json serializable error objects for expected failures and must not return `Error` instances
 - when writing server actions, you must handle exceptions in `catch` and return a serialized error object
-- while using tailwind classes avoid using hardocde values like text-[0.9rem]. Prefer standard tailwind classes text-sm, text-md.
-- This project follow feature folders architecture
-- ensure you update the comments if logic changes
+- when using tailwind classes, you must avoid hardcoded values like `text-[0.9rem]` and prefer standard classes like `text-sm` and `text-md`
+- when organizing code in this project, you must follow the feature folders architecture
+- Write main function first, helpers below it
+- when changing logic, you must update the comments

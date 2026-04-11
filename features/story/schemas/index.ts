@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const generateStorySchema = z.object({
-  prompt: z.string().min(5, "Prompt must be at least 5 characters long").max(500, "Prompt must be less than 500 characters").describe("User provided story prompt"),
+  prompt: z.string().max(5000, "Prompt must be less than 5000 characters").describe("User provided story prompt"),
   level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).describe("English proficiency level targeting"),
 });
 
