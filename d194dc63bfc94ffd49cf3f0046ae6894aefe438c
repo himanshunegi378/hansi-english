@@ -1,0 +1,37 @@
+AGENTS.md
+  ff24339f6d511d89 23
+  cc5869add7361add 6-18,21-22,24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "d194dc63bfc94ffd49cf3f0046ae6894aefe438c",
+  "prompts": {
+    "cc5869add7361add": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d7bc6-0b8e-7442-82bd-c53ef641b1e7",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 16,
+      "total_deletions": 16,
+      "accepted_lines": 16,
+      "overriden_lines": 0
+    },
+    "ff24339f6d511d89": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d7c69-30ee-7532-8943-7f33dcfc77ef",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 0,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
