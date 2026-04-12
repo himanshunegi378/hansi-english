@@ -1,0 +1,27 @@
+components/providers/query-provider.tsx
+  b846993eb0efdabf 3-5,7,9-11,23-29,33-42,45-59
+components/providers/indexed-db-storage.ts
+  b846993eb0efdabf 1-169
+package.json
+  b846993eb0efdabf 23-25,35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "eae5a143c1faae7c53cd61aee459dd596821efbd",
+  "prompts": {
+    "b846993eb0efdabf": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d8222-252a-7f53-858a-b7009db85efa",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Himanshu Singh Negi",
+      "messages": [],
+      "total_additions": 215,
+      "total_deletions": 14,
+      "accepted_lines": 214,
+      "overriden_lines": 0
+    }
+  }
+}
