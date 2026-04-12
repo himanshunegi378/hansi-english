@@ -58,9 +58,8 @@ const meaningContextSchema = z.object({
  */
 export async function getWordMeaningAction(input: unknown): Promise<GetWordMeaningResponse> {
   const result = getWordMeaningSchema.safeParse(input);
-
   if (!result.success) {
-    throw new Error("Invalid word selection.");
+    throw new Error(result.error.issues[0]?.message ?? "Invalid word selection.");
   }
 
   const { contextSentence, word } = result.data;

@@ -62,7 +62,7 @@ async function requireAdminUserId(): Promise<string> {
 export async function generateStoryContentAction(input: unknown): Promise<StoryOnlyResponse> {
   const result = generateStorySchema.safeParse(input);
   if (!result.success) {
-    throw new Error("Invalid input");
+    throw new Error(result.error.issues[0]?.message ?? "Invalid input");
   }
 
   const { prompt, level } = result.data;
@@ -152,7 +152,7 @@ export async function saveGeneratedStoryAction(input: SaveStoryInput, options: {
 
   const result = saveStorySchema.safeParse(input);
   if (!result.success) {
-    throw new Error("Invalid story payload");
+    throw new Error(result.error.issues[0]?.message ?? "Invalid story payload");
   }
 
   const { content, level, prompt, questions, title } = result.data;
