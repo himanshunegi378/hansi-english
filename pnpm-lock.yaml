@@ -35,9 +35,15 @@ importers:
       '@prisma/client':
         specifier: ^7.6.0
         version: 7.6.0(prisma@7.6.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3)
+      '@tanstack/query-async-storage-persister':
+        specifier: ^5.99.0
+        version: 5.99.0
       '@tanstack/react-query':
-        specifier: ^5.96.2
-        version: 5.96.2(react@19.2.4)
+        specifier: ^5.99.0
+        version: 5.99.0(react@19.2.4)
+      '@tanstack/react-query-persist-client':
+        specifier: ^5.99.0
+        version: 5.99.0(@tanstack/react-query@5.99.0(react@19.2.4))(react@19.2.4)
       ai:
         specifier: ^6.0.145
         version: 6.0.145(zod@4.3.6)
@@ -65,6 +71,9 @@ importers:
       framer-motion:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      idb:
+        specifier: ^8.0.3
+        version: 8.0.3
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1364,11 +1373,23 @@ packages:
   '@tailwindcss/postcss@4.2.2':
     resolution: {integrity: sha512-n4goKQbW8RVXIbNKRB/45LzyUqN451deQK0nzIeauVEqjlI49slUlgKYJM2QyUzap/PcpnS7kzSUmPb1sCRvYQ==}
 
-  '@tanstack/query-core@5.96.2':
-    resolution: {integrity: sha512-hzI6cTVh4KNRk8UtoIBS7Lv9g6BnJPXvBKsvYH1aGWvv0347jT3BnSvztOE+kD76XGvZnRC/t6qdW1CaIfwCeA==}
+  '@tanstack/query-async-storage-persister@5.99.0':
+    resolution: {integrity: sha512-RUG++yZf8RoRK1Yz83WHHYJ6EF8DqKIF/UNNUUDEw/cY9SLKhAeEd4a0+kDzNRdb4RGXXeF5UIuzoEFJ7elLwQ==}
 
-  '@tanstack/react-query@5.96.2':
-    resolution: {integrity: sha512-sYyzzJT4G0g02azzJ8o55VFFV31XvFpdUpG+unxS0vSaYsJnSPKGoI6WdPwUucJL1wpgGfwfmntNX/Ub1uOViA==}
+  '@tanstack/query-core@5.99.0':
+    resolution: {integrity: sha512-3Jv3WQG0BCcH7G+7lf/bP8QyBfJOXeY+T08Rin3GZ1bshvwlbPt7NrDHMEzGdKIOmOzvIQmxjk28YEQX60k7pQ==}
+
+  '@tanstack/query-persist-client-core@5.99.0':
+    resolution: {integrity: sha512-FzXoxqGYa+ozGNGBIPHJT06rJD4geiHGbVXNS8K7cwN34te64LXlO5Ep+roQYvZjXJFNrLa4W48DIYITpMxzuA==}
+
+  '@tanstack/react-query-persist-client@5.99.0':
+    resolution: {integrity: sha512-A3TTaaYZOy6dFUNJj3r10rwmUBWaXqc2N71a7jzpFXilYAYWLKJf9ivT5n5bhXsJnSkdvv1RLifUg/GdvDGaDw==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.99.0
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.99.0':
+    resolution: {integrity: sha512-OY2bCqPemT1LlqJ8Y2CUau4KELnIhhG9Ol3ZndPbdnB095pRbPo1cHuXTndg8iIwtoHTgwZjyaDnQ0xD0mYwAw==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -2666,6 +2687,9 @@ packages:
   iconv-lite@0.7.2:
     resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
     engines: {node: '>=0.10.0'}
+
+  idb@8.0.3:
+    resolution: {integrity: sha512-LtwtVyVYO5BqRvcsKuB2iUMnHwPVByPCXFXOpuU96IZPPoPN6xjOGxZQ74pgSVVLQWtUOYgyeL4GE98BY5D3wg==}
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
@@ -5334,11 +5358,26 @@ snapshots:
       postcss: 8.5.8
       tailwindcss: 4.2.2
 
-  '@tanstack/query-core@5.96.2': {}
-
-  '@tanstack/react-query@5.96.2(react@19.2.4)':
+  '@tanstack/query-async-storage-persister@5.99.0':
     dependencies:
-      '@tanstack/query-core': 5.96.2
+      '@tanstack/query-core': 5.99.0
+      '@tanstack/query-persist-client-core': 5.99.0
+
+  '@tanstack/query-core@5.99.0': {}
+
+  '@tanstack/query-persist-client-core@5.99.0':
+    dependencies:
+      '@tanstack/query-core': 5.99.0
+
+  '@tanstack/react-query-persist-client@5.99.0(@tanstack/react-query@5.99.0(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      '@tanstack/query-persist-client-core': 5.99.0
+      '@tanstack/react-query': 5.99.0(react@19.2.4)
+      react: 19.2.4
+
+  '@tanstack/react-query@5.99.0(react@19.2.4)':
+    dependencies:
+      '@tanstack/query-core': 5.99.0
       react: 19.2.4
 
   '@ts-morph/common@0.27.0':
@@ -6794,6 +6833,8 @@ snapshots:
   iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
+
+  idb@8.0.3: {}
 
   ignore@5.3.2: {}
 
