@@ -85,36 +85,28 @@ export function MeaningTooltip({
     }
   };
 
-  return isMobile ? (
-    <Drawer open onOpenChange={handleOpenChange}>
-      <DrawerContent data-text-meaning-overlay="true">
-        <DrawerHeader className="text-left">
-          <DrawerTitle className="flex items-center gap-2">
-            <BookOpen />
-            <span className="capitalize">{selectedText.text}</span>
-          </DrawerTitle>
-          <DrawerDescription>
-            {meaning?.hindiTranslation ??
-              meaning?.phonetic ??
-              "AI-generated meanings and pronunciation"}
-          </DrawerDescription>
-        </DrawerHeader>
-        <MeaningContent
-          errorMessage={errorMessage}
-          isLoading={isLoading}
-          meaning={meaning}
-          onClose={onClose}
-        />
-        <div className="p-4 pt-0">
-          <DrawerClose asChild>
-            <Button variant="outline" className="w-full">
-              Close
-            </Button>
-          </DrawerClose>
-        </div>
-      </DrawerContent>
-    </Drawer>
-  ) : (
+  if (isMobile) {
+    return (
+      <Drawer open onOpenChange={handleOpenChange} direction="top">
+        <DrawerContent data-text-meaning-overlay="true">
+          <DrawerHeader className="text-left">
+            <DrawerTitle className="flex items-center gap-2">
+              <BookOpen />
+              <span className="capitalize">{selectedText.text}</span>
+            </DrawerTitle>
+          </DrawerHeader>
+          <MeaningContent
+            errorMessage={errorMessage}
+            isLoading={isLoading}
+            meaning={meaning}
+            onClose={onClose}
+          />
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
+  return (
     <Popover open onOpenChange={handleOpenChange}>
       <PopoverTrigger
         render={
@@ -141,11 +133,7 @@ export function MeaningTooltip({
                 <BookOpen className="size-4 text-primary" />
                 <span className="capitalize">{selectedText.text}</span>
               </PopoverTitle>
-              <PopoverDescription>
-                {meaning?.hindiTranslation ??
-                  meaning?.phonetic ??
-                  "AI-generated meanings and pronunciation"}
-              </PopoverDescription>
+
             </div>
             <Button
               type="button"

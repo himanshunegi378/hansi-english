@@ -62,7 +62,7 @@ export function MeaningContent({
 
       <Separator />
 
-      <div className="rounded-xl bg-muted/50 p-3 text-sm leading-6 text-foreground">
+      <div className="text-sm leading-6 text-foreground">
         {isLoading ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
@@ -73,12 +73,15 @@ export function MeaningContent({
         ) : (
           <div className="flex flex-col gap-4">
             {meaning?.hindiHowItFitsInContext ? (
-              <div className="flex flex-col gap-1 rounded-lg bg-background/70 p-3">
-                <p className="text-xs font-medium text-muted-foreground">
-                  Hindi context explanation
-                </p>
-                <p>{meaning.hindiHowItFitsInContext}</p>
-              </div>
+              <>
+                <div className="flex flex-col gap-1 rounded-lg bg-background/70">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Hindi context explanation
+                  </p>
+                  <p>{meaning.hindiHowItFitsInContext}</p>
+                </div>
+                <Separator />
+              </>
             ) : null}
             {meaning?.meanings.slice(0, 3).map((entry, meaningIndex) => (
               <div key={`${entry.partOfSpeech}-${meaningIndex}`} className="flex flex-col gap-2">
@@ -111,12 +114,6 @@ export function MeaningContent({
             ))}
           </div>
         )}
-      </div>
-
-      <div className="flex justify-end">
-        <Button type="button" variant="ghost" size="sm" onClick={onClose}>
-          Dismiss
-        </Button>
       </div>
     </div>
   );

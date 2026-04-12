@@ -22,3 +22,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - when organizing code in this project, you must follow the feature folders architecture
 - Write main function first, helpers below it
 - when changing logic, you must update the comments
+- While writing code prefer if/else over ternary operators
