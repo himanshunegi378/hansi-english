@@ -32,7 +32,7 @@ export const questionsOnlySchema = z.object({
 export type QuestionsOnlyResponse = z.infer<typeof questionsOnlySchema>;
 
 export const saveStorySchema = z.object({
-  prompt: z.string().min(5).max(500).describe("Original prompt used to generate the story"),
+  prompt: z.string().min(5).max(5000).describe("Original prompt used to generate the story"),
   title: z.string().min(1).describe("Generated story title"),
   content: z.string().min(1).describe("Generated story content"),
   level: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).describe("English proficiency level for the story"),
