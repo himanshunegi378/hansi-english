@@ -1,17 +1,16 @@
 "use client";
 
+import { animate } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, RotateCcw, Zap } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { CheckCircle2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
   CardTitle,
+  CardHeader,
 } from "@/components/ui/card";
 import type { ReviewGrade } from "../../backend/types";
 import type { AnkiStudySessionState } from "../../types/ui";
@@ -22,17 +21,50 @@ function Root({ children }: { children: React.ReactNode }) {
 }
 
 function ProgressPanel({ state }: { state: AnkiStudySessionState }) {
+  const animatedProgressValue = useAnimatedProgressValue(state.progressValue);
+
   return (
-    <div className="flex flex-col gap-3 rounded-[1.5rem] border border-border/60 bg-card/90 p-4">
+    <div className="flex flex-col gap-3 rounded-3xl border border-border/60 bg-card/90 p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-foreground">Session progress</p>
-        <p className="text-sm text-muted-foreground tabular-nums">
-          {state.reviewedCount}/{state.totalCount} reviewed
-        </p>
+        <div className="text-right">
+          <p className="text-sm text-muted-foreground tabular-nums">
+            {state.reviewedCount}/{state.totalCount} reviewed
+          </p>
+          <p className="text-xs text-muted-foreground tabular-nums">
+            {Math.round(animatedProgressValue)}%
+          </p>
+        </div>
       </div>
-      <Progress value={state.progressValue} />
+      <Progress value={animatedProgressValue} />
     </div>
   );
+}
+
+/**
+ * Smoothly interpolates progress changes so UI feedback feels continuous.
+ */
+function useAnimatedProgressValue(value: number) {
+  const [animatedValue, setAnimatedValue] = useState(value);
+  const previousValueRef = useRef(value);
+
+  useEffect(() => {
+    const controls = animate(previousValueRef.current, value, {
+      duration: 0.35,
+      ease: "easeOut",
+      onUpdate(latestValue) {
+        setAnimatedValue(latestValue);
+      },
+    });
+
+    previousValueRef.current = value;
+
+    return () => {
+      controls.stop();
+    };
+  }, [value]);
+
+  return animatedValue;
 }
 
 /**
@@ -43,14 +75,14 @@ function Flashcard({
   back,
   isRevealed,
   isPending,
-  onReveal,
+  onToggleReveal,
   onGrade,
 }: {
   front: string;
   back: string;
   isRevealed: boolean;
   isPending: boolean;
-  onReveal: () => void;
+  onToggleReveal: () => void;
   onGrade: (grade: ReviewGrade) => void;
 }) {
   const grades: Array<{ grade: ReviewGrade; label: string }> = [
@@ -61,75 +93,165 @@ function Flashcard({
   ];
 
   return (
-    <div className="relative h-110 w-full transform-gpu sm:h-100">
-      <div
-        className={cn(
-          "relative h-full w-full transition-all duration-700 transform-3d",
-          isRevealed && "transform-[rotateY(180deg)]",
-        )}
+    <div className="flex flex-col gap-6 py-2 sm:gap-7 sm:py-3">
+      <div className="relative h-110 w-full px-4 py-4 transform-gpu sm:h-100 sm:px-5 sm:py-5">
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-x-5 inset-y-5 rounded-3xl border bg-card shadow-sm transition-all duration-700",
+            isRevealed
+              ? "translate-x-4 translate-y-4 rotate-6 border-primary/12 bg-primary/10 shadow-primary/10"
+              : "translate-x-4 translate-y-4 rotate-6 border-border/55 bg-muted/55",
+          )}
+        />
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-x-3 inset-y-3 rounded-2xl border bg-card shadow-sm transition-all duration-700",
+            isRevealed
+              ? "translate-x-2 translate-y-2 rotate-3 border-primary/16 bg-primary/8 shadow-primary/10"
+              : "translate-x-2 translate-y-2 rotate-3 border-border/65 bg-card/90",
+          )}
+        />
+        <div
+          className={cn(
+            "relative h-full w-full transition-all duration-300 transform-3d",
+            isRevealed && "transform-[rotateY(180deg)]",
+          )}
+        >
+          <FlashcardFront front={front} onToggleReveal={onToggleReveal} />
+          <FlashcardBack back={back} onToggleReveal={onToggleReveal} />
+        </div>
+      </div>
+      <FlashcardActions
+        grades={grades}
+        isPending={isPending}
+        isRevealed={isRevealed}
+        onGrade={onGrade}
+      />
+    </div>
+  );
+}
+
+/**
+ * Renders the question side of the study card.
+ */
+function FlashcardFront({
+  front,
+  onToggleReveal,
+}: {
+  front: string;
+  onToggleReveal: () => void;
+}) {
+  return (
+    <div className="backface-hidden absolute inset-0 translate-z-0 antialiased">
+      <button
+        type="button"
+        className="block h-full w-full text-left"
+        onClick={onToggleReveal}
       >
-        {/* Front Face */}
-        <div className="backface-hidden absolute inset-0 translate-z-0 antialiased">
-          <Card className="flex h-full flex-col overflow-hidden rounded-lg border border-border/70 bg-secondary/30 shadow-sm ring-1 ring-border/40 transition-colors hover:border-primary/15">
-            <CardHeader className="relative gap-2 border-b border-border/60 bg-background/60 p-5 backdrop-blur-sm">
-
-              <CardTitle className="font-heading text-xl tracking-tight sm:text-2xl">
-                Question
-              </CardTitle>
-
-            </CardHeader>
-            <CardContent className="flex flex-1 items-center justify-center p-6 text-center">
+        <Card className="flex h-full flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm ring-1 ring-border/40 transition-colors hover:border-primary/15">
+          <CardHeader className="relative gap-2 border-b border-border/60 bg-background p-5">
+            <CardTitle className="font-heading text-xl tracking-tight sm:text-2xl">
+              Question
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex h-full flex-1 flex-col p-6 text-center">
+            <div className="flex flex-1 items-center justify-center">
               <p className="max-w-2xl text-lg font-medium text-foreground sm:text-2xl">
                 {front}
               </p>
-            </CardContent>
-            <CardFooter className="border-border/60 bg-background/75 p-4">
-              <Button
-                className="w-full rounded-full"
-                size="lg"
-                onClick={onReveal}
-              >
-                Reveal Answer
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
+            </div>
+            <p className="pt-4 text-center text-xs font-medium tracking-wide text-muted-foreground">
+              Tap to reveal answer
+            </p>
+          </CardContent>
+        </Card>
+      </button>
+    </div>
+  );
+}
 
-        {/* Back Face */}
-        <div className="backface-hidden absolute inset-0 translate-z-0 antialiased transform-[rotateY(180deg)]">
-          <Card className="flex h-full flex-col overflow-hidden rounded-lg border border-primary/15 bg-primary/6 shadow-sm shadow-primary/8 ring-1 ring-primary/10">
-            <CardHeader className="relative gap-1 border-b border-primary/10 bg-background/70 p-5 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <CardTitle className="font-heading text-xl tracking-tight">
-                  Answer
-                </CardTitle>
-              </div>
-
-            </CardHeader>
-            <CardContent className="relative flex flex-1 items-center justify-center p-6 text-center">
+/**
+ * Renders the answer side of the study card.
+ */
+function FlashcardBack({
+  back,
+  onToggleReveal,
+}: {
+  back: string;
+  onToggleReveal: () => void;
+}) {
+  return (
+    <div className="backface-hidden absolute inset-0 translate-z-0 antialiased transform-[rotateY(180deg)]">
+      <button
+        type="button"
+        className="block h-full w-full text-left"
+        onClick={onToggleReveal}
+      >
+        <Card className="flex h-full flex-col overflow-hidden rounded-lg border border-primary/15 bg-card shadow-sm shadow-primary/8 ring-1 ring-primary/10">
+          <CardHeader className="relative gap-1 border-b border-primary/10 bg-background p-5">
+            <div className="flex items-center justify-between">
+              <CardTitle className="font-heading text-xl tracking-tight">
+                Answer
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="flex h-full flex-1 flex-col p-6 text-center">
+            <div className="flex flex-1 items-center justify-center">
               <p className="max-w-2xl text-base leading-7 text-foreground sm:text-lg">
                 {back}
               </p>
-            </CardContent>
-            <CardFooter className="grid grid-cols-2 gap-2 border-primary/10 bg-background/80 p-4 sm:grid-cols-4">
-              {grades.map((item) => (
-                <Button
-                  key={item.grade}
-                  variant={item.grade >= 3 ? "default" : "outline"}
-                  className="rounded-full"
-                  disabled={isPending}
-                  onClick={() => onGrade(item.grade)}
-                >
-                  {isPending && item.grade === 1 ? (
-                    <RotateCcw className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  {item.label}
-                </Button>
-              ))}
-            </CardFooter>
-          </Card>
-        </div>
-      </div>
+            </div>
+            <p className="pt-4 text-center text-xs font-medium tracking-wide text-muted-foreground">
+              Tap to return to question
+            </p>
+          </CardContent>
+        </Card>
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Renders detached study actions below the flashcard.
+ */
+function FlashcardActions({
+  grades,
+  isPending,
+  isRevealed,
+  onGrade,
+}: {
+  grades: Array<{ grade: ReviewGrade; label: string }>;
+  isPending: boolean;
+  isRevealed: boolean;
+  onGrade: (grade: ReviewGrade) => void;
+}) {
+  if (!isRevealed) {
+    return null;
+  }
+
+  return (
+    <div className="grid grid-cols-3 overflow-hidden rounded-md bg-card shadow-sm shadow-primary/10">
+      {grades.map((item) => (
+        <Button
+          key={item.grade}
+          className={cn(
+            "w-full rounded-none border-0 font-semibold shadow-none",
+            item.grade !== grades[0]?.grade && "border-l border-border/60",
+            item.grade === 2 &&
+            "bg-chart-5/20 text-chart-5 hover:bg-chart-5/28",
+            item.grade === 3 &&
+            "bg-chart-2/20 text-chart-2 hover:bg-chart-2/28",
+            item.grade === 4 &&
+            "bg-chart-1/20 text-chart-1 hover:bg-chart-1/28",
+          )}
+          disabled={isPending}
+          onClick={() => onGrade(item.grade)}
+        >
+          {item.label}
+        </Button>
+      ))}
     </div>
   );
 }

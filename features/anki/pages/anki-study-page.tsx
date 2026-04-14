@@ -42,6 +42,7 @@ export function AnkiStudyPage({ deckId }: AnkiStudyPageProps) {
     })) ?? [];
   const { hideAnswer, isPending, revealAnswer, state, submitGrade } =
     useAnkiStudySession(deckId, cards);
+  const handleToggleReveal = state.isAnswerVisible ? hideAnswer : revealAnswer;
 
   if (deckTitleQuery.isPending || studyQueueQuery.isPending) {
     return (
@@ -95,7 +96,7 @@ export function AnkiStudyPage({ deckId }: AnkiStudyPageProps) {
                 back={state.activeCard.back}
                 isRevealed={state.isAnswerVisible}
                 isPending={isPending}
-                onReveal={revealAnswer}
+                onToggleReveal={handleToggleReveal}
                 onGrade={submitGrade}
               />
             </>
