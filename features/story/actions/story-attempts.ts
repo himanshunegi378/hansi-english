@@ -288,7 +288,13 @@ async function gradeStoryAnswer({
     options,
     questionText,
     questionType,
-    storyContent,
+    storyExcerpt: selectRelevantStoryExcerpt({
+      correctAnswer,
+      options,
+      questionText,
+      storyContent,
+      userAnswer: submittedAnswer.textAnswer ?? "",
+    }),
     userAnswer: submittedAnswer.textAnswer ?? "",
   });
 
@@ -304,7 +310,7 @@ interface EvaluateSubjectiveAnswerOptions {
   options: string[];
   questionText: string;
   questionType: string;
-  storyContent: string;
+  storyExcerpt: string;
   userAnswer: string;
 }
 
@@ -318,7 +324,7 @@ async function evaluateSubjectiveAnswer({
   options,
   questionText,
   questionType,
-  storyContent,
+  storyExcerpt,
   userAnswer,
 }: EvaluateSubjectiveAnswerOptions): Promise<z.infer<typeof subjectiveEvaluationSchema>> {
   const { text } = await generateText({
@@ -334,7 +340,7 @@ async function evaluateSubjectiveAnswer({
     prompt: [
       `Question type: ${questionType}`,
       `Question: ${questionText}`,
-      `Story: ${storyContent}`,
+      `Relevant story excerpt: ${storyExcerpt}`,
       `Answer guide: ${correctAnswer ?? "No exact answer guide provided."}`,
       `Options: ${options.length > 0 ? options.join(" | ") : "No options"}`,
       `Learner answer: ${userAnswer}`,
@@ -361,6 +367,144 @@ function parseTaggedJson(text: string): unknown {
 
   return JSON.parse(match[1].trim()) as unknown;
 }
+
+interface SelectRelevantStoryExcerptOptions {
+  correctAnswer: string | null;
+  options: string[];
+  questionText: string;
+  storyContent: string;
+  userAnswer: string;
+}
+
+/**
+ * Picks a compact story excerpt so grading focuses on the most relevant evidence.
+ * Falls back to the opening of the story when keyword matching is weak.
+ * @param options The full story and grading clues used to rank candidate sentences.
+ * @returns A short excerpt suitable for the grading prompt.
+ */
+function selectRelevantStoryExcerpt({
+  correctAnswer,
+  options,
+  questionText,
+  storyContent,
+  userAnswer,
+}: SelectRelevantStoryExcerptOptions): string {
+  const sentences = splitStoryIntoSentences(storyContent);
+
+  if (sentences.length === 0) {
+    return storyContent.trim().slice(0, 700);
+  }
+
+  const keywords = buildStoryKeywords({
+    correctAnswer,
+    options,
+    questionText,
+    userAnswer,
+  });
+
+  const rankedSentences = sentences
+    .map((sentence, index) => ({
+      index,
+      score: scoreStorySentence(sentence, keywords),
+      sentence,
+    }))
+    .sort((left, right) => {
+      if (right.score === left.score) {
+        return left.index - right.index;
+      }
+
+      return right.score - left.score;
+    });
+
+  const topMatches = rankedSentences
+    .filter((entry) => entry.score > 0)
+    .slice(0, 3)
+    .sort((left, right) => left.index - right.index)
+    .map((entry) => entry.sentence);
+
+  if (topMatches.length > 0) {
+    return topMatches.join(" ").slice(0, 700);
+  }
+
+  return sentences.slice(0, 3).join(" ").slice(0, 700);
+}
+
+interface BuildStoryKeywordsOptions {
+  correctAnswer: string | null;
+  options: string[];
+  questionText: string;
+  userAnswer: string;
+}
+
+/**
+ * Extracts useful keywords from the grading inputs to localize the relevant excerpt.
+ * @param options The question and answer signals that hint at the key story passage.
+ * @returns A deduplicated list of lowercase keywords.
+ */
+function buildStoryKeywords({
+  correctAnswer,
+  options,
+  questionText,
+  userAnswer,
+}: BuildStoryKeywordsOptions): string[] {
+  const sources = [questionText, correctAnswer ?? "", options.join(" "), userAnswer];
+
+  return Array.from(
+    new Set(
+      sources
+        .flatMap((value) => value.toLowerCase().match(/[a-z]+/g) ?? [])
+        .filter((word) => word.length >= 4)
+        .filter((word) => !COMMON_STORY_STOP_WORDS.has(word)),
+    ),
+  );
+}
+
+/**
+ * Splits story prose into sentence-like chunks for excerpt ranking.
+ * @param storyContent The full story body.
+ * @returns Non-empty sentence fragments.
+ */
+function splitStoryIntoSentences(storyContent: string): string[] {
+  return storyContent
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence.length > 0);
+}
+
+/**
+ * Scores one story sentence against the extracted grading keywords.
+ * @param sentence The candidate story sentence.
+ * @param keywords The keywords that indicate relevance.
+ * @returns A simple overlap score.
+ */
+function scoreStorySentence(sentence: string, keywords: string[]): number {
+  const lowercaseSentence = sentence.toLowerCase();
+  let score = 0;
+
+  for (const keyword of keywords) {
+    if (lowercaseSentence.includes(keyword)) {
+      score += 1;
+    }
+  }
+
+  return score;
+}
+
+const COMMON_STORY_STOP_WORDS = new Set([
+  "about",
+  "after",
+  "before",
+  "could",
+  "learner",
+  "question",
+  "story",
+  "their",
+  "there",
+  "these",
+  "those",
+  "which",
+  "would",
+]);
 
 /**
  * Normalizes a textual boolean answer key into a real boolean value.

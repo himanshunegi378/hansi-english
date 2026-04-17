@@ -64,6 +64,11 @@ const questionGenerationRules = {
     ]
 };
 
+/**
+ * Builds the shared system prompt for story generation.
+ * @param level The target English-learning difficulty.
+ * @returns The stable story-writing instructions for the model.
+ */
 export function getStorySystemPrompt(level: EnglishLevel) {
     const currentLevelStoryRules = storyGenerationRules[level].map(rule => `- ${rule}`).join("\n");
 
@@ -83,14 +88,17 @@ The full story content, formatted with clear paragraphs.
 Do not include any preamble or conversational intro/outro. Only the tagged content is allowed.`;
 }
 
-export function getQuestionSystemPrompt(level: EnglishLevel, storyContent: string) {
+/**
+ * Builds the shared system prompt for question generation.
+ * Story-specific content is passed separately in the user prompt.
+ * @param level The target English-learning difficulty.
+ * @returns The stable question-writing instructions for the model.
+ */
+export function getQuestionSystemPrompt(level: EnglishLevel) {
     const currentLevelQuestionRules = questionGenerationRules[level].map(rule => `- ${rule}`).join("\n");
 
     return `You are an English language teacher. 
-Generate comprehension questions for the following story at the ${level} level.
-
-STORY:
-${storyContent}
+Generate comprehension questions for the provided story at the ${level} level.
 
 RULES FOR QUESTION GENERATION (${level}):
 ${currentLevelQuestionRules}
@@ -121,4 +129,27 @@ IMPORTANT RULES FOR MULTIPLE-CHOICE QUESTIONS:
 
 Valid question types are: COMPREHENSION, VOCABULARY, INFERENCE, PERSONAL_RESPONSE, ANALYSIS.
 Do not include any preamble or conversational intro/outro.`;
+}
+
+/**
+ * Builds the request-specific user prompt for story generation.
+ * @param prompt The story idea supplied by the user.
+ * @returns The user prompt body sent to the model.
+ */
+export function getStoryUserPrompt(prompt: string) {
+    return `Provide a story about: ${prompt}`;
+}
+
+/**
+ * Builds the request-specific user prompt for question generation.
+ * @param storyContent The story that the questions should be based on.
+ * @returns The user prompt body sent to the model.
+ */
+export function getQuestionUserPrompt(storyContent: string) {
+    return [
+        "Generate comprehension questions for this story:",
+        "<story>",
+        storyContent,
+        "</story>",
+    ].join("\n");
 }

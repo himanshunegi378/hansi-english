@@ -14,7 +14,12 @@ import {
   type StoryOnlyResponse,
 } from "../schemas";
 import { POINTS_PER_QUESTION } from "../const";
-import { getStorySystemPrompt, getQuestionSystemPrompt } from "../prompts/story-prompts";
+import {
+  getQuestionSystemPrompt,
+  getQuestionUserPrompt,
+  getStorySystemPrompt,
+  getStoryUserPrompt,
+} from "../prompts/story-prompts";
 import { mapStoryProgress } from "../story-progress";
 import { type EnglishLevel, type PersistedStory, type StoryListItem } from "../types";
 import { getOptionalUserId } from "./story-attempt-helpers";
@@ -71,7 +76,7 @@ export async function generateStoryContentAction(input: unknown): Promise<StoryO
     const { text } = await generateText({
       model: defaultModel,
       system: getStorySystemPrompt(level),
-      prompt: `Provide a story about: ${prompt}`,
+      prompt: getStoryUserPrompt(prompt),
       maxOutputTokens: 3000,
       temperature: 0.7,
     });
@@ -104,8 +109,8 @@ export async function generateStoryQuestionsAction(storyContent: string, level: 
   try {
     const { text } = await generateText({
       model: defaultModel,
-      system: getQuestionSystemPrompt(level, storyContent),
-      prompt: `Generate comprehension questions for the story.`,
+      system: getQuestionSystemPrompt(level),
+      prompt: getQuestionUserPrompt(storyContent),
       maxOutputTokens: 2000,
       temperature: 0.5,
     });
